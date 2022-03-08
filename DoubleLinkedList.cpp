@@ -156,7 +156,7 @@ public:
         }
         return It;
     }
-    ListIterator operator[](size_type value) {
+    ListIterator operator[](int value) {
         int flag = value > 0 ? 1 : -1;
         for(size_type i = 0; i < flag*value; i++) {
             if(flag) { if(node) node = node->next; } 
