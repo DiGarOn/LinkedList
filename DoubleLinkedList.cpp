@@ -156,17 +156,14 @@ public:
         }
         return It;
     }
-/*
     ListIterator operator[](size_type value) {
-        if(value <= LinkedList<T>::count) {
-            ListIterator cur = new ListIterator(LinkedList<T>::head);
-            for(size_type i = 0; i < value; i++) {
-                cur = cur++;
-            }
-            return cur;
-        } else { exit(0); }
+        int flag = value > 0 ? 1 : -1;
+        for(size_type i = 0; i < flag*value; i++) {
+            if(flag) { if(node) node = node->next; } 
+            else { if(node) node = node->prev; }
+        }
+        return *this;
     }
-*/
 };
 
 template<typename T>
