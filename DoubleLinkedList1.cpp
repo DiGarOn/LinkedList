@@ -148,6 +148,11 @@ public:
     typename LinkedList<T>::reference operator*() { return node->value; }
     typename LinkedList<T>::const_reference operator*() const { return node->value; }
 
+    bool IsBegin() {
+        if(node) if(node->prev == nullptr) return true;
+        return false;
+    }
+
     ListIterator operator++() {
         if(node) node = node->next;
         return *this;
@@ -202,19 +207,26 @@ auto operator-(TT q,TT w) ->
     enable_if_t<
         is_same_v<
             typename
-            TT::orginal_type::ListIterator,
+            LinkedList<typename TT::value_type>::ListIterator,
             TT
         >,
         ptrdiff_t
     >{
         using T=typename TT::orginal_type;
-        ptrdiff_t count = 0;
-        while(q != w) {
-            ++count;
-            ++w;
+        
+        ptrdiff_t count_q = 0;
+        ptrdiff_t count_w = 0;
+        while(!q.IsBegin()) {
+            count_q++;
+            --q;
         }
-        return count;
+        while(!w.IsBegin()) {
+            count_w++;
+            --w;
+        }
+        return (count_q - count_w);
 }
+
 
 template<typename T>
 LinkedList<T>::ListNode::ListNode(): value(), next(0), prev(0) {}
