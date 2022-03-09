@@ -211,7 +211,7 @@ auto operator-(TT q,TT w) ->
         ptrdiff_t count = 0;
         while(q != w) {
             ++count;
-            ++q;
+            ++w;
         }
         return count;
 }
