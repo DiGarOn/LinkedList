@@ -148,6 +148,11 @@ public:
     typename LinkedList<T>::reference operator*() { return node->value; }
     typename LinkedList<T>::const_reference operator*() const { return node->value; }
 
+    bool IsZero() {
+        if(!node) return true;
+        return false;
+    }
+
     bool IsBegin() {
         if(node) if(node->prev == nullptr) return true;
         return false;
@@ -213,14 +218,14 @@ auto operator-(TT q,TT w) ->
         ptrdiff_t
     >{
         using T=typename TT::orginal_type;
-        
+        //if(q.IsZero() || w.IsZero()) return 0;
         ptrdiff_t count_q = 0;
         ptrdiff_t count_w = 0;
-        while(!q.IsBegin()) {
+        while(*q != 0) {
             count_q++;
             --q;
         }
-        while(!w.IsBegin()) {
+        while(*w != 0) {
             count_w++;
             --w;
         }
@@ -261,6 +266,9 @@ LinkedList<T>::LinkedList(size_type val): count(val), head(), tail() {
             cur1 = cur;
         }
         tail = cur;
+        ListNode * after_tail = new ListNode;
+        tail->next = after_tail;
+        after_tail->prev = tail;
     }
 }
 
@@ -309,6 +317,9 @@ void LinkedList<T>::pop_back() {
     tail->next = 0;
     delete cur;
     --count;
+    ListNode * after_tail = new ListNode;
+    tail->next = after_tail;
+    after_tail->prev = tail;
 }   
 
 template<typename T>
@@ -333,16 +344,17 @@ void LinkedList<T>::push_back(const T & n) {
         tail = val;
         head = tail;
         tail->prev = nullptr;
-        tail->next = nullptr;
         head->prev = nullptr;
         head->next = nullptr; 
     } else {
         tail->next = val;
         val->prev = tail;
         tail = val;
-        tail->next = nullptr; 
     }
     ++count;
+    ListNode * after_tail = new ListNode;
+    tail->next = after_tail;
+    after_tail->prev = tail;
 }
 
 template<typename T>
@@ -352,9 +364,11 @@ void LinkedList<T>::push_front(const T & n) {
         head = val;
         tail = head;
         tail->prev = nullptr;
-        tail->next = nullptr;
         head->prev = nullptr;
         head->next = nullptr; 
+        ListNode * after_tail = new ListNode;
+        tail->next = after_tail;
+        after_tail->prev = tail;
     } else {
         head->prev = val;
         val->next = head;
@@ -427,6 +441,9 @@ typename LinkedList<value_type>::_iterator LinkedList<value_type>::insert(Linked
         new_tail->next = tail;
         tail->prev = new_tail;
         _iterator res = _iterator(new_tail);
+        ListNode * after_tail = new ListNode;
+        tail->next = after_tail;
+        after_tail->prev = tail;
         //cout << ": " << *(--res) << "| " << *(res) << " |" << " :" << *(++res) << endl;
         return res;
     }
@@ -460,6 +477,9 @@ void LinkedList<value_type>::insert(LinkedList<value_type>::_iterator It, size_t
             new_tail->prev = tail;
             new_tail->next = nullptr;
             tail = new_tail;
+            ListNode * after_tail = new ListNode;
+            tail->next = after_tail;
+            after_tail->prev = tail;
         }
         //return res;
     }
@@ -491,7 +511,9 @@ typename LinkedList<T>::_iterator LinkedList<T>::erase(LinkedList<T>::_iterator 
         ListNode * cur = tail->prev;
         delete tail;
         tail = cur;
-        tail->next = nullptr;
+        ListNode * after_tail = new ListNode;
+        tail->next = after_tail;
+        after_tail->prev = tail;
         return _iterator(tail);
     } else {
         ListNode * pr = cur->prev;
