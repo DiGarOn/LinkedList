@@ -9,15 +9,26 @@ template<typename T>
 class LinkedList {
 public:
     class ListIterator;
-private:
-    typedef ListIterator iterator;
+// private:
+//     typedef ListIterator _iterator;
 
-    typedef size_t size_type;
-    typedef T value_type;
-    typedef value_type& reference;
-    typedef const value_type& const_reference;
-    typedef value_type* pointer;
-    typedef const value_type* const_pointer;
+//     typedef size_t size_type;
+//     typedef T value_type;
+//     typedef value_type& reference;
+//     typedef const value_type& const_reference;
+//     typedef value_type* pointer;
+//     typedef const value_type* const_pointer;
+
+public:
+    using difference_type = std::ptrdiff_t;
+    using value_type = T;
+    using pointer = T*;
+    using reference = T&;
+    using iterator_category = std::output_iterator_tag;
+    using size_type = size_t;
+    using const_reference = const value_type&;
+    using _iterator = ListIterator;
+
 
     class ListNode;
     
@@ -45,22 +56,22 @@ public:
     reference back();//                                     back() - cehck
     const_reference back() const;//                         back() - check 
 
-    iterator begin();//                                     begin() - check 
-    iterator end();//                                       end() - check
-    //reverse iterator rbegin();//                            x
-    //reverse iterator rend();//                              x
+    _iterator begin();//                                     begin() - check 
+    _iterator end();//                                       end() - check
+    //reverse _iterator rbegin();//                            x
+    //reverse _iterator rend();//                              x
 
     bool empty() const;//                                   empty() - check
     size_type size() const;//                               size() - check
 
     
     void clear();//                                         clear() - check
-    iterator insert(iterator, const value_type &);//        insert - check
-    void insert(iterator, size_type, const value_type &);// insert - check
-    //void insert(iterator, iterator, iterator);//          не буду реализовывать 
+    _iterator insert(_iterator, const value_type &);//        insert - check
+    void insert(_iterator, size_type, const value_type &);// insert - check
+    //void insert(_iterator, _iterator, _iterator);//          не буду реализовывать 
 
-    iterator erase(iterator);//                                   erase - check
-    iterator erase(iterator, iterator);//                      x
+    _iterator erase(_iterator);//                                   erase - check
+    _iterator erase(_iterator, _iterator);//                      x
 
     void pop_back();//                                      pop_back() - check
     void push_back(const value_type &);//                            push_back() - check 
@@ -95,15 +106,13 @@ public:
 template<typename T>
 class LinkedList<T>::ListIterator {
     //template<typename It>
-    //friend struct std::iterator_traits<T>;
+    friend struct std::iterator_traits<T>;
 
-/*
-    typedef std::ptrdiff_t difference_type;
-    typedef typename LinkedList<T>::value_type value_type;
-    typedef typename LinkedList<T>::value_type* pointer;
-    typedef typename LinkedList<T>::value_type& reference;
-    typedef std::forward_iterator_tag iterator_category;
-*/
+    // using difference_type = std::ptrdiff_t;
+    // using value_type = typename LinkedList<T>::value_type;
+    // using pointer = typename LinkedList<T>::value_type*;
+    // using reference = typename LinkedList<T>::value_type&;
+    // using iterator_category = std::forward_iterator_tag;
     typename LinkedList<T>::ListNode * node;
 
 public:
@@ -112,9 +121,21 @@ public:
     using pointer = T*;
     using reference = T&;
     using iterator_category = std::output_iterator_tag;
+    using size_type = size_t;
+    using const_reference = const value_type&;
+    using _iterator = ListIterator;
 
-    //typename LinkedList<T>::ListNode * node;
+    using orginal_type=LinkedList<T>;
 
+/*
+    typedef std::ptrdiff_t difference_type;
+    typedef typename LinkedList<T>::value_type value_type;
+    typedef typename LinkedList<T>::value_type* pointer;
+    typedef typename LinkedList<T>::value_type& reference;
+    typedef std::forward_iterator_tag iterator_category;
+*/
+
+public:
     ListIterator(typename LinkedList<T>::ListNode *n):node(n){}
 
     bool operator==(const ListIterator & other) const { return node == other.node; }
@@ -176,14 +197,23 @@ public:
     }
 };
 
-template<typename T>
-ptrdiff_t operator-(typename LinkedList<T>::ListIterator q, typename LinkedList<T>::ListIterator w){
-	ptrdiff_t count = 0;
-    while(q != w) {
-        ++count;
-        ++q;
-    }
-    return count;
+template<typename TT>
+auto operator-(TT q,TT w) ->
+    enable_if_t<
+        is_same_v<
+            typename
+            TT::orginal_type::ListIterator,
+            TT
+        >,
+        ptrdiff_t
+    >{
+        using T=typename TT::orginal_type;
+        ptrdiff_t count = 0;
+        while(q != w) {
+            ++count;
+            ++q;
+        }
+        return count;
 }
 
 template<typename T>
@@ -366,16 +396,16 @@ typename LinkedList<T>::ListIterator LinkedList<T>::end() {
 }
 
 template <typename value_type>
-typename LinkedList<value_type>::iterator LinkedList<value_type>::insert(LinkedList<value_type>::iterator It, const value_type & val) {
+typename LinkedList<value_type>::_iterator LinkedList<value_type>::insert(LinkedList<value_type>::_iterator It, const value_type & val) {
     count++;
     ListNode * cur = head;
-    while(iterator(cur) != It) { cur = cur->next; }
+    while(_iterator(cur) != It) { cur = cur->next; }
     if(cur == head) {
         ListNode * new_head = new ListNode(val);
         new_head->prev = nullptr;
         new_head->next = cur;
         head = new_head;
-        return iterator(head);
+        return _iterator(head);
     }
     if(cur == tail) {
         ListNode * new_tail = new ListNode(val);
@@ -384,7 +414,7 @@ typename LinkedList<value_type>::iterator LinkedList<value_type>::insert(LinkedL
         pr->next = new_tail;
         new_tail->next = tail;
         tail->prev = new_tail;
-        iterator res = iterator(new_tail);
+        _iterator res = _iterator(new_tail);
         //cout << ": " << *(--res) << "| " << *(res) << " |" << " :" << *(++res) << endl;
         return res;
     }
@@ -394,14 +424,14 @@ typename LinkedList<value_type>::iterator LinkedList<value_type>::insert(LinkedL
     new_cur->prev = pr;
     new_cur->next = cur;
     cur->prev = new_cur;
-    return iterator(new_cur);
+    return _iterator(new_cur);
 
 }
 
 template<typename value_type>
-void LinkedList<value_type>::insert(LinkedList<value_type>::iterator It, size_type n, const value_type & val) {
+void LinkedList<value_type>::insert(LinkedList<value_type>::_iterator It, size_type n, const value_type & val) {
     ListNode * cur = head;
-    while(iterator(cur) != It) { cur = cur->next; }
+    while(_iterator(cur) != It) { cur = cur->next; }
     if(cur == head) {
         for(size_type i = 0; i < n; i++) {
             ListNode * new_head = new ListNode(val);
@@ -409,10 +439,10 @@ void LinkedList<value_type>::insert(LinkedList<value_type>::iterator It, size_ty
             new_head->next = cur;
             head = new_head;
         }
-        //return iterator(head);
+        //return _iterator(head);
     }
     if(cur == tail) {
-        iterator res = iterator(cur);
+        _iterator res = _iterator(cur);
         for(size_type i = 0; i < n; i++) {
             ListNode * new_tail = new ListNode(val);
             new_tail->prev = tail;
@@ -421,7 +451,7 @@ void LinkedList<value_type>::insert(LinkedList<value_type>::iterator It, size_ty
         }
         //return res;
     }
-    iterator res = iterator(cur);
+    _iterator res = _iterator(cur);
     ListNode * pr = GetPrev(cur);
     for(size_type i = 0; i < n; i++) {
         
@@ -436,33 +466,33 @@ void LinkedList<value_type>::insert(LinkedList<value_type>::iterator It, size_ty
 }
 
 template<typename T>
-typename LinkedList<T>::iterator LinkedList<T>::erase(LinkedList<T>::iterator It) {
+typename LinkedList<T>::_iterator LinkedList<T>::erase(LinkedList<T>::_iterator It) {
     ListNode * cur = head;
-    while(iterator(cur) != It) { cur = cur->next; }
+    while(_iterator(cur) != It) { cur = cur->next; }
     if(cur == head) {
         ListNode * cur = cur->next;
         delete head;
         head = cur;
         head->prev = nullptr;
-        return iterator(head);
+        return _iterator(head);
     } else if(cur == tail) {
         ListNode * cur = tail->prev;
         delete tail;
         tail = cur;
         tail->next = nullptr;
-        return iterator(tail);
+        return _iterator(tail);
     } else {
         ListNode * pr = cur->prev;
         ListNode * ne = cur->next;
         delete cur;
         pr->next = ne;
         ne->prev = pr;
-        return iterator(ne);
+        return _iterator(ne);
     }
 }
 /*
 template<typename T>
-typename LinkedList<T>::iterator LinkedList<T>::erase(LinkedList<T>::iterator firstIt, LinkedList<T>::iterator secondIt) {
+typename LinkedList<T>::_iterator LinkedList<T>::erase(LinkedList<T>::_iterator firstIt, LinkedList<T>::_iterator secondIt) {
     ListNode * pr = firstIt.node->prev;
     ListNode * ne = secondIt.node->next;
     ListNode * cur = firstIt.node;
@@ -517,7 +547,7 @@ int main() {
     cout << "find: " << *(find(mylist.begin(), mylist.end(), 1)) << endl;
 
     sort(mylist.begin(), mylist.end());
-    //mylist.Print();
+    mylist.Print();
     
     return 0;
 }
