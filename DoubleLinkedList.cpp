@@ -94,15 +94,22 @@ public:
 
 template<typename T>
 class LinkedList<T>::ListIterator {
-    //template<typename T>
+    //template<typename It>
     friend struct std::iterator_traits<T>;
 
+    using difference_type = std::ptrdiff_t;
+    using value_type = typename LinkedList<T>::value_type;
+    using pointer = typename LinkedList<T>::value_type*;
+    using reference = typename LinkedList<T>::value_type&;
+    using iterator_category = std::forward_iterator_tag;
+
+/*
     typedef std::ptrdiff_t difference_type;
     typedef typename LinkedList<T>::value_type value_type;
     typedef typename LinkedList<T>::value_type* pointer;
     typedef typename LinkedList<T>::value_type& reference;
     typedef std::forward_iterator_tag iterator_category;
-
+*/
     typename LinkedList<T>::ListNode * node;
 
 public:
@@ -495,8 +502,10 @@ int main() {
     mylist.insert(mylist.begin() + 1, 2, 1);
     mylist.Print();
     cout << "\n_________________________________________\n";
+    cout << "find: " << *(find(mylist.begin(), mylist.end(), 1)) << endl;
+
     sort(mylist.begin(), mylist.end());
-    mylist.Print();
+    //mylist.Print();
     
     return 0;
 }
