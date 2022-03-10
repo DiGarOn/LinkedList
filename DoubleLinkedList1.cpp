@@ -138,10 +138,10 @@ public:
 public:
     ListIterator(typename LinkedList<T>::ListNode *n):node(n){}
 
-    bool operator==(const ListIterator & other) const { return node == other.node; }
-    bool operator!=(const ListIterator & other) const { return node != other.node; } 
-    bool operator<(const ListIterator & other) const { return node < other.node; }
-    bool operator>(const ListIterator & other) const { return node > other.node; }
+    bool operator==(const ListIterator & other) const { return *this - other == 0; }
+    bool operator!=(const ListIterator & other) const { return !(*this == other); } 
+    bool operator<(const ListIterator & other) const { return *this - other < 0; }
+    bool operator>(const ListIterator & other) const { return *this - other > 0; }
     bool operator<=(const ListIterator & other) const { return !(node > other.node); }
     bool operator>=(const ListIterator & other) const { return !(node < other.node); }
 
@@ -221,11 +221,11 @@ auto operator-(TT q,TT w) ->
         //if(q.IsZero() || w.IsZero()) return 0;
         ptrdiff_t count_q = 0;
         ptrdiff_t count_w = 0;
-        while(*q != 0) {
+        while(!q.IsZero()) {
             count_q++;
             --q;
         }
-        while(*w != 0) {
+        while(!w.IsZero()) {
             count_w++;
             --w;
         }
@@ -461,6 +461,7 @@ typename LinkedList<value_type>::_iterator LinkedList<value_type>::insert(Linked
 template<typename value_type>
 void LinkedList<value_type>::insert(LinkedList<value_type>::_iterator It, size_type n, const value_type & val) {
     ListNode * cur = head;
+    count += n;
     while(_iterator(cur) != It) { cur = cur->next; }
     if(cur == head) {
         for(size_type i = 0; i < n; i++) {
@@ -505,6 +506,7 @@ void LinkedList<value_type>::insert(LinkedList<value_type>::_iterator It, size_t
 template<typename T>
 typename LinkedList<T>::_iterator LinkedList<T>::erase(LinkedList<T>::_iterator It) {
     ListNode * cur = head;
+    count--;
     while(_iterator(cur) != It) { cur = cur->next; }
     if(cur == head) {
         ListNode * cur = cur->next;
@@ -587,9 +589,12 @@ int main() {
     mylist.Print();
     cout << "\n_________________________________________\n";
     //cout << "find: " << *(find(mylist.begin(), mylist.end(), 1)) << endl;
+    //cout << *mylist.begin();
+    //cout << *mylist.end();
 
+    //if(mylist.end() == mylist.end()) cout << "yes";
     sort(mylist.begin(), mylist.end());
-    mylist.Print();
+    //mylist.Print();
     
     return 0;
 }
