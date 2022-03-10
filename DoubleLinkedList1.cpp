@@ -430,6 +430,7 @@ typename LinkedList<value_type>::_iterator LinkedList<value_type>::insert(Linked
         ListNode * new_head = new ListNode(val);
         new_head->prev = nullptr;
         new_head->next = cur;
+        cur->prev = new_head;
         head = new_head;
         return _iterator(head);
     }
@@ -441,9 +442,9 @@ typename LinkedList<value_type>::_iterator LinkedList<value_type>::insert(Linked
         new_tail->next = tail;
         tail->prev = new_tail;
         _iterator res = _iterator(new_tail);
-        ListNode * after_tail = new ListNode;
-        tail->next = after_tail;
-        after_tail->prev = tail;
+        //ListNode * after_tail = new ListNode;
+        //tail->next = after_tail;
+        //after_tail->prev = tail;
         //cout << ": " << *(--res) << "| " << *(res) << " |" << " :" << *(++res) << endl;
         return res;
     }
@@ -466,34 +467,38 @@ void LinkedList<value_type>::insert(LinkedList<value_type>::_iterator It, size_t
             ListNode * new_head = new ListNode(val);
             new_head->prev = nullptr;
             new_head->next = cur;
+            cur->prev = new_head;
             head = new_head;
         }
         //return _iterator(head);
     }
     if(cur == tail) {
+        
         _iterator res = _iterator(cur);
         for(size_type i = 0; i < n; i++) {
             ListNode * new_tail = new ListNode(val);
             new_tail->prev = tail;
+            tail->next = new_tail;
             new_tail->next = nullptr;
             tail = new_tail;
-            ListNode * after_tail = new ListNode;
-            tail->next = after_tail;
-            after_tail->prev = tail;
         }
+        ListNode * after_tail = new ListNode;
+        tail->next = after_tail;
+        after_tail->prev = tail;
         //return res;
+    } else {
+        _iterator res = _iterator(cur);
+        ListNode * pr = GetPrev(cur);
+        for(size_type i = 0; i < n; i++) {
+            
+            ListNode * new_cur = new ListNode(val);
+            pr->next = new_cur;
+            new_cur->prev = pr;
+            pr = pr->next;
+        }
+        pr->next = cur;
+        cur->prev = pr;
     }
-    _iterator res = _iterator(cur);
-    ListNode * pr = GetPrev(cur);
-    for(size_type i = 0; i < n; i++) {
-        
-        ListNode * new_cur = new ListNode(val);
-        pr->next = new_cur;
-        new_cur->prev = pr;
-        pr = pr->next;
-    }
-    pr->next = cur;
-    cur->prev = pr;
     //return res;
 }
 
@@ -575,10 +580,13 @@ int main() {
     mylist.Print();
     cout << "\n_________________________________________\n";
     //cout << *(++mylist.begin());
-    mylist.insert(mylist.begin() + 1, 2, 1);
+    mylist.insert(mylist.end()-1, 1);
+    cout << "--edn: " << *(--mylist.end()) << endl;
+    mylist.insert(mylist.end()-1, 2, 5);
+    cout << "--edn: " << *(--mylist.end()) << endl;
     mylist.Print();
     cout << "\n_________________________________________\n";
-    cout << "find: " << *(find(mylist.begin(), mylist.end(), 1)) << endl;
+    //cout << "find: " << *(find(mylist.begin(), mylist.end(), 1)) << endl;
 
     sort(mylist.begin(), mylist.end());
     mylist.Print();
