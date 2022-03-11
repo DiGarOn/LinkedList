@@ -84,6 +84,7 @@ public:
     void Print(); // - check 
     ListNode * GetPrev(ListNode *);// GetPrev - check
     ListNode * GetNext(ListNode *);// GetNext - check
+    friend void swap(typename LinkedList<T>::ListIterator, typename LinkedList<T>::ListIterator);
 };
 
 template<typename T>
@@ -232,6 +233,14 @@ auto operator-(TT q,TT w) ->
         return (count_q - count_w);
 }
 
+template<typename T>
+void swap(typename LinkedList<T>::ListIterator f, typename LinkedList<T>::ListIterator s) {
+    typename LinkedList<T>::ListIterator f_pr = --f;
+    typename LinkedList<T>::ListIterator f_ne = ++f;
+    typename LinkedList<T>::ListIterator s_pr = --s;
+    typename LinkedList<T>::ListIterator s_ne = ++s;
+
+}
 
 template<typename T>
 LinkedList<T>::ListNode::ListNode(): value(), next(0), prev(0) {}
@@ -591,10 +600,10 @@ int main() {
     //cout << "find: " << *(find(mylist.begin(), mylist.end(), 1)) << endl;
     //cout << *mylist.begin();
     //cout << *mylist.end();
-
+    //cout << mylist.end() - mylist.begin() << " : " << mylist.size() << endl;
     //if(mylist.end() == mylist.end()) cout << "yes";
     sort(mylist.begin(), mylist.end());
-    //mylist.Print();
+    mylist.Print();
     
     return 0;
 }
