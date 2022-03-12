@@ -58,8 +58,8 @@ public:
 
     _iterator begin();//                                     begin() - check 
     _iterator end();//                                       end() - check
-    //reverse _iterator rbegin();//                            x
-    //reverse _iterator rend();//                              x
+    _iterator rbegin();//                            x
+    _iterator rend();//                              x
 
     bool empty() const;//                                   empty() - check
     size_type size() const;//                               size() - check
@@ -115,6 +115,7 @@ class LinkedList<T>::ListIterator {
     // using reference = typename LinkedList<T>::value_type&;
     // using iterator_category = std::forward_iterator_tag;
     typename LinkedList<T>::ListNode * node;
+    T flag;
 
 public:
     using difference_type = std::ptrdiff_t;
@@ -128,6 +129,8 @@ public:
 
     using orginal_type=LinkedList<T>;
 
+    bool target;
+
 /*
     typedef std::ptrdiff_t difference_type;
     typedef typename LinkedList<T>::value_type value_type;
@@ -135,9 +138,9 @@ public:
     typedef typename LinkedList<T>::value_type& reference;
     typedef std::forward_iterator_tag iterator_category;
 */
-
+    //сделать флаг для реверса
 public:
-    ListIterator(typename LinkedList<T>::ListNode *n):node(n){}
+    ListIterator(typename LinkedList<T>::ListNode *n):node(n), flag(), target(1){}
 
     bool operator==(const ListIterator & other) const { return *this - other == 0; }
     bool operator!=(const ListIterator & other) const { return !(*this == other); } 
@@ -146,8 +149,8 @@ public:
     bool operator<=(const ListIterator & other) const { return !(node > other.node); }
     bool operator>=(const ListIterator & other) const { return !(node < other.node); }
 
-    typename LinkedList<T>::reference operator*() { return node->value; }
-    typename LinkedList<T>::const_reference operator*() const { return node->value; }
+    typename LinkedList<T>::reference operator*() { if(node != nullptr) return node->value; else return flag; }
+    typename LinkedList<T>::const_reference operator*() const { if(node != nullptr)return node->value; else return flag; }
 
     bool IsZero() {
         if(!node) return true;
@@ -160,32 +163,48 @@ public:
     }
 
     ListIterator operator++() {
-        if(node) node = node->next;
+        if(node)  {
+            if(target)node = node->next;
+            else node = node->prev;
+        }
         return *this;
     }
     ListIterator operator--() {
-        if(node) node = node->prev;
+        if(node) {
+            if(target)node = node->prev;
+            else node = node->next;
+        }
         return *this;
     }
 
     ListIterator operator+=(size_type n) {
         for(size_type i = 0; i < n; i++) {
-            if(node) node = node->next;
+            if(node){
+                if(target)node = node->next;
+                else node = node->prev;
+            }
             else exit(0);
         }
         return *this;
     }
     ListIterator operator-=(size_type n) {
         for(size_type i = 0; i < n; i++) {
-            if(node) node = node->prev;
+            if(node) {
+                if(target)node = node->prev;
+                else node = node->next;
+            }
             else exit(0);
         }
         return *this;
     }
 
     ListIterator operator+(size_type n) { //    x
+        ListIterator It = ListIterator(node);
         for(size_type i = 0; i < n; i++) {
-            if(node) node = node->next;
+            if(node){
+                if(target)node = node->next;
+                else node = node->prev;
+            }
             else exit(0);
         }
         return *this;
@@ -199,10 +218,21 @@ public:
         return It;
     }
     ListIterator operator[](int value) {
-        int flag = value > 0 ? 1 : -1;
+        int fl = value > 0 ? 1 : -1;
         for(size_type i = 0; i < flag*value; i++) {
-            if(flag) { if(node) node = node->next; } 
-            else { if(node) node = node->prev; }
+            if(fl) { 
+                if(node) {
+                    if(target)node = node->next;
+                    else node = node->prev; 
+                }
+            }
+
+            else { 
+                if(node) {
+                    if(target)node = node->prev;
+                    else node = node->next; 
+                }
+            }
         }
         return *this;
     }
@@ -230,7 +260,8 @@ auto operator-(TT q,TT w) ->
             count_w++;
             --w;
         }
-        return (count_q - count_w);
+        if(q.target)return (count_q - count_w);
+        else return (count_w - count_q);
 }
 
 template<typename T>
@@ -579,6 +610,20 @@ void LinkedList<T>::assign(size_type n, const value_type & val) {
     }
 }
 
+template<typename T> 
+typename LinkedList<T>::_iterator LinkedList<T>::rbegin() {
+    ListIterator res = end();
+    res.target = 0;
+    return res;
+}
+
+template<typename T>
+typename LinkedList<T>::_iterator LinkedList<T>::rend() {
+    ListIterator res = begin();
+    res.target = 0;
+    return res;
+}
+
 //push's and pop's working 
 
 int main() {
@@ -602,8 +647,10 @@ int main() {
     //cout << *mylist.end();
     //cout << mylist.end() - mylist.begin() << " : " << mylist.size() << endl;
     //if(mylist.end() == mylist.end()) cout << "yes";
-    sort(mylist.begin(), mylist.end());
+    sort(mylist.begin(), --mylist.end());
     mylist.Print();
-    
+    cout << "\n_________________________________________\n";
+    sort(++mylist.rbegin(), mylist.rend());
+    mylist.Print();    
     return 0;
 }
