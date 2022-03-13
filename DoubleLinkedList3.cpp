@@ -1,8 +1,6 @@
 #include <iostream>
 #include <iterator>
 #include <vector>
-#include <assert.h>
-#include <algorithm>
 
 using namespace std;
 
@@ -27,7 +25,7 @@ public:
     using value_type = T;
     using pointer = T*;
     using reference = T&;
-    using iterator_category = std::output_iterator_tag;
+    using iterator_category = std::random_access_iterator_tag;
     using size_type = size_t;
     using const_reference = const value_type&;
     using _iterator = ListIterator;
@@ -82,12 +80,12 @@ public:
     void push_front(const value_type &);//                           push_front() - check
 
     //void resize(size_type);//                               x
-    void swap(LinkedList &);//                              x
+    // void swap(LinkedList &);//                              x
 
     void Print(); // - check 
     ListNode * GetPrev(ListNode *);// GetPrev - check
     ListNode * GetNext(ListNode *);// GetNext - check
-    friend void swap(typename LinkedList<T>::ListIterator, typename LinkedList<T>::ListIterator);
+    // friend void swap(typename LinkedList<T>::ListIterator, typename LinkedList<T>::ListIterator);
 };
 
 template<typename T>
@@ -125,7 +123,7 @@ public:
     using value_type = T;
     using pointer = T*;
     using reference = T&;
-    using iterator_category = std::output_iterator_tag;
+    using iterator_category = std::random_access_iterator_tag;
     using size_type = size_t;
     using const_reference = const value_type&;
     using _iterator = ListIterator;
@@ -204,45 +202,30 @@ public:
         }
         return *this;
     }
-
-    ListIterator operator+(size_type n) { //    x
-        for(size_type i = 0; i < n; i++) {
-            if(node){
-                if(target)node = node->next;
-                else node = node->prev;
-            }
-            else exit(0);
+    ListIterator&operator+=(long n) {
+        if (n<0){
+            *this-=size_t(-n);
+        }else{
+            *this+=size_t(n);
         }
         return *this;
     }
-    ListIterator operator-(size_type n) { //    x
-        for(size_type i = 0; i < n; i++) {
-            if(node) {
-                if(target) node = node->prev;
-                else node = node->next;
-            }
-            else exit(0);
-        }
-        return *this;
+    ListIterator&operator-=(long n){
+        return *this+=(-n);
     }
-    ListIterator operator[](int value) {
-        int fl = value > 0 ? 1 : -1;
-        for(size_type i = 0; i < flag*value; i++) {
-            if(fl) { 
-                if(node) {
-                    if(target)node = node->next;
-                    else node = node->prev; 
-                }
-            }
 
-            else { 
-                if(node) {
-                    if(target)node = node->prev;
-                    else node = node->next; 
-                }
-            }
-        }
-        return *this;
+    ListIterator operator+(long n) {
+        auto q=*this;
+        q+=n;
+        return q;
+    }
+    ListIterator operator-(long n) {
+        auto q=*this;
+        q-=n;
+        return q;
+    }
+    T&operator[](long value) {
+        return *(*this+value);
     }
 };
 
@@ -355,7 +338,7 @@ void LinkedList<T>::clear() {
 
 template<typename T>
 void LinkedList<T>::pop_back() {
-    if( !tail ) { exit(0); }
+    assert( !tail );
     if( !tail->prev ) {
         delete tail;
         count = 0;
@@ -373,7 +356,7 @@ void LinkedList<T>::pop_back() {
 
 template<typename T>
 void LinkedList<T>::pop_front() {
-    if(!head) { exit(0); }
+    assert(!head);
     if(!head->next) {
         delete head;
         count = 0;
@@ -448,17 +431,17 @@ typename LinkedList<T>::const_reference LinkedList<T>::back() const {
 }
 
 //--------------------------------------------------------------------------------------swap()
-template<typename T>
-void LinkedList<T>::swap(LinkedList & other) {
-    size_type len1 = count;
-    size_type len2 = other.count;
-    ListNode * cur1 = new ListNode(head);
-    ListNode * cur2 = new ListNode(other.head);
-    while(cur1 -> next && cur2->next) {
-        ListNode * cur3 = cur1;
+// template<typename T>
+// void LinkedList<T>::swap(LinkedList & other) {
+//     size_type len1 = count;
+//     size_type len2 = other.count;
+//     ListNode * cur1 = new ListNode(head);
+//     ListNode * cur2 = new ListNode(other.head);
+//     while(cur1 -> next && cur2->next) {
+//         ListNode * cur3 = cur1;
 
-    }
-}
+//     }
+// }
 
 template<typename T>
 typename LinkedList<T>::ListIterator LinkedList<T>::begin() {
@@ -642,16 +625,27 @@ void check(T q,T e){
 		a.push_back(w);
 	}
 	a.push_back(e);
-	for (size_t w=0;w<a.size();++w){
-		for (size_t e=0;e<a.size();++e){
+	for (int w=0;w<a.size();++w){
+		for (int e=0;e<a.size();++e){
+            //cout << w << " " << e << endl;
+            //cout << *a[w] << " " << *a[e] << endl;
+            cout << "1) " << (a[w]-a[e]) << " " << (w-e) << endl;   
 			assert(a[w]-a[e]==w-e);
+            cout << "2) " << (w>=e) << " " << (a[w]<a[e]) << endl;
 			assert(w>=e or  a[w]<a[e]);
+            cout <<"3) " << (w<=e) << " " << (a[w]>a[e]) << endl;
 			assert(w<=e or  a[w]>a[e]);
+            cout <<"4) " << (w==e) << " " << (a[w]!=a[e]) << endl;
 			assert(w==e or a[w]!=a[e]);
+            cout <<"5) " << (w>e) << " " << (a[w]<=a[e]) << endl;
 			assert(w>e  or a[w]<=a[e]);
+            cout <<"6) " << (w<e) << " " << (a[w]>=a[e]) << endl;
 			assert(w<e  or a[w]>=a[e]);
+            cout <<"7) " << (w!=e) << " " << (a[w]==a[e]) << endl;
 			assert(w!=e or a[w]==a[e]);
+            cout <<"8) " << *(a[w]+(e-w)) << " " << *(a[e]) << endl;
 			assert(a[w]+(e-w)==a[e]);
+            cout <<"9) " << *(a[w]-(w-e)) << " " << *(a[e]) << endl;
 			assert(a[w]-(w-e)==a[e]);
 		}
 	}
@@ -680,8 +674,12 @@ int main() {
     mylist.insert(mylist.end()-1, 2, 5);
     mylist.insert(mylist.begin(), 4, 7);
 
+    //cout << (mylist.end() - (mylist.end()-1)) << endl;
+    //cout << mylist.size();
+    
     //reverse(mylist.begin(), mylist.end());
-    check(mylist.begin(), mylist.end());
+    //check(mylist.begin(), mylist.end());
+    //check(mylist.begin(), mylist.end());
     //cout << "--edn: " << *(--mylist.end()) << endl;
     //mylist.Print();
     //cout << "\n_________________________________________\n";
