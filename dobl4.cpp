@@ -822,27 +822,72 @@ void check(T q,T e){
 	assert(a==s);
 }
 
+void ch(LinkedList<int> & a, vector<int> & b) {
+    for(int i = 0; i < a.size(); i++) {
+        //cout << a.begin()[i] << " " << b[i] << endl; 
+        assert(a.begin()[i] == b[i]);
+    }
+    assert(*(a.begin()) == *(b.begin()));
+    assert(*(--a.end()) == *(--b.end()));
+    assert(*(a.rbegin()) == *(b.rbegin()));
+    assert(*(--a.rend()) == *(--b.rend()));
+    sort(a.begin(), a.end());
+    sort(b.begin(), b.end());
+    for(int i = 0; i < a.size(); i++) {
+        //cout << a.begin()[i] << " " << b[i] << endl; 
+        assert(a.begin()[i] == b[i]);
+    }
+    sort(a.rbegin(), a.rend());
+    sort(b.rbegin(), b.rend());
+    for(int i = 0; i < a.size(); i++) {
+        //cout << a.begin()[i] << " " << b[i] << endl; 
+        assert(a.begin()[i] == b[i]);
+    }
+}
 
 
 int main() {
     LinkedList<int> a;
-    a.assign(3,3);
-    a.push_back(5);
-    a.push_front(4);
-    //a.pop_front();
+    //a.assign(3,3);
+    // a.push_back(5);
+    // a.push_front(4);
+    // //a.pop_front();
     //a.pop_back();
     //sort(a.begin(), a.end());
-    a.Print();
-
-    cout << "\n_________________________________________\n";
-
-    a.insert(a.end(),3, 1);
-    a.erase(a.end()-1);
-    a.resize(a.size()-1);
-    a.resize(a.size()+2);
-    sort(a.rbegin(), a.rend());
+    // a.insert(a.end(),3, 1);
+    // a.erase(a.end()-1);
+    // a.resize(a.size()-1);
+    // a.resize(a.size()+1);
+    // a.Print();
+    a.push_back(1);
+    a.push_back(4);
+    a.push_back(6);
+    a.push_back(63);
+    a.push_back(5);
+    a.push_back(7);
+    a.push_back(8);
+    a.push_back(4);
+    a.push_back(6);
+    //cout << "\n_________________________________________\n";
+    //sort(a.rbegin(), a.rend());
     
-    a.Print();
+    //a.Print();
+
+    vector<int> b = {1,4,6,63,5,7,8,4,6};
+    ch(a,b);
+    //cout << *(--b.end()) << " " << *(b.rbegin()) << endl;
+    //cout << *(b.begin()) << " " << *(--b.rend()) << endl;
+/*
+    cout << endl;
+    sort(b.rbegin(), b.rend());
+    for(int i = 0; i < b.size(); i++) {
+        cout << b[i] << " ";
+    }
+    cout << endl;
+*/
+    //cout << *(--a.end()) << " " << *(a.rbegin()) << endl;
+    //cout << *(a.begin()) << " " << *(--a.rend()) << endl;
+
 
     //LinkedList<int> b(a);
     //b.Print();
