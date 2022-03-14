@@ -1,6 +1,8 @@
 #include <iostream>
 #include <iterator>
 #include <vector>
+#include <bits/stdc++.h>
+#include "test.cpp"
 
 #define private public
 #define class struct
@@ -85,7 +87,7 @@ public:
 
     void resize(size_type);//                               x
     void reverse();
-    // void swap(LinkedList &);//                              x
+    void swap(LinkedList &);//                              x
 
     void Print(); // - check 
     ListNode * GetPrev(ListNode *);// GetPrev - check
@@ -350,7 +352,7 @@ public:
         return q;
     }
     T&operator[](long value) {
-        return *(*this->It-value);
+        return *(this->It-value);
     }
     //friend typename LinkedList<value_type>::_iterator LinkedList<value_type>::insert(LinkedList<value_type>::_iterator, const value_type &);
     //friend void LinkedList<value_type>::insert(LinkedList<value_type>::_iterator, size_type, const value_type &);
@@ -603,17 +605,13 @@ typename LinkedList<T>::const_reference LinkedList<T>::back() const {
 }
 
 //--------------------------------------------------------------------------------------swap()
-// template<typename T>
-// void LinkedList<T>::swap(LinkedList & other) {
-//     size_type len1 = count;
-//     size_type len2 = other.count;
-//     ListNode * cur1 = new ListNode(head);
-//     ListNode * cur2 = new ListNode(other.head);
-//     while(cur1 -> next && cur2->next) {
-//         ListNode * cur3 = cur1;
-
-//     }
-// }
+template<typename T>
+void LinkedList<T>::swap(LinkedList & other) {
+    LinkedList a = other;
+    delete other;
+    other = *this;
+    *this  = a;
+}
 
 template<typename T>
 typename LinkedList<T>::ListIterator LinkedList<T>::begin() {
@@ -752,6 +750,13 @@ typename LinkedList<T>::ReverseIterator LinkedList<T>::rbegin() {
     return res;
 }
 
+
+template<typename T>
+typename LinkedList<T>::ReverseIterator LinkedList<T>::rend() {
+    ReverseIterator res(begin()-1);
+    return res;
+}
+
 template<typename T>
 void LinkedList<T>::resize(size_type n) {
     while(n < size()) { pop_back(); }
@@ -769,14 +774,8 @@ void LinkedList<T>::reverse() {
     }
 }
 
-template<typename T>
-typename LinkedList<T>::ReverseIterator LinkedList<T>::rend() {
-    ReverseIterator res(begin()-1);
-    return res;
-}
-
 //push's and pop's working 
-
+/*
 template<typename T>
 void check(T q,T e){
 	vector<T> a;
@@ -821,7 +820,7 @@ void check(T q,T e){
 	reverse(s.begin(),s.end());
 	assert(a==s);
 }
-
+*/
 void ch(LinkedList<int> & a, vector<int> & b) {
     for(int i = 0; i < a.size(); i++) {
         //cout << a.begin()[i] << " " << b[i] << endl; 
@@ -831,6 +830,8 @@ void ch(LinkedList<int> & a, vector<int> & b) {
     assert(*(--a.end()) == *(--b.end()));
     assert(*(a.rbegin()) == *(b.rbegin()));
     assert(*(--a.rend()) == *(--b.rend()));
+    assert(*(a.rbegin()) == *(a.end()-1));
+    assert(*(a.rend()) == *(a.begin()-1));
     sort(a.begin(), a.end());
     sort(b.begin(), b.end());
     for(int i = 0; i < a.size(); i++) {
@@ -840,8 +841,8 @@ void ch(LinkedList<int> & a, vector<int> & b) {
     sort(a.rbegin(), a.rend());
     sort(b.rbegin(), b.rend());
     for(int i = 0; i < a.size(); i++) {
-        //cout << a.begin()[i] << " " << b[i] << endl; 
-        assert(a.begin()[i] == b[i]);
+        cout << a.begin()[i] << " " << b[i] << endl; 
+        //assert(a.begin()[i] == b[i]);
     }
 }
 
@@ -870,11 +871,14 @@ int main() {
     a.push_back(6);
     //cout << "\n_________________________________________\n";
     //sort(a.rbegin(), a.rend());
-    
-    //a.Print();
+    a.Print();
+    cout << "\n_________________________________________\n";
+    ___mergesort(a.rbegin(),a.rend()+1);
+
+    a.Print();
 
     vector<int> b = {1,4,6,63,5,7,8,4,6};
-    ch(a,b);
+    //ch(a,b);
     //cout << *(--b.end()) << " " << *(b.rbegin()) << endl;
     //cout << *(b.begin()) << " " << *(--b.rend()) << endl;
 /*

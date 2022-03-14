@@ -29,6 +29,15 @@
   ],
   "files.associations": {
     "algorithm": "cpp",
-    "iterator": "cpp"
+    "iterator": "cpp",
+    "__bit_reference": "cpp",
+    "__hash_table": "cpp",
+    "__split_buffer": "cpp",
+    "array": "cpp",
+    "memory": "cpp",
+    "string": "cpp",
+    "string_view": "cpp",
+    "unordered_map": "cpp",
+    "vector": "cpp"
   }
 }
