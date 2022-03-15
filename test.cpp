@@ -537,21 +537,35 @@ template<typename T>
 void check(T q,T e){
 	vector<T> a;
 	for (auto w=q;w!=e;++w){
+        w.check();
 		a.push_back(w);
 	}
+    e.check();
 	a.push_back(e);
-	for (size_t w=0;w<a.size();++w){
-		for (size_t e=0;e<a.size();++e){
-			long d=long(w)-long(e);
-			assert(a[w]-a[e]==d);
+	for (int w=0;w<a.size();++w){
+		for (int e=0;e<a.size();++e){
+            cout << w << " " << e << endl;
+            //cout << *a[w] << " " << *a[e] << endl;
+            cout << "1) " << (a[w]-a[e]) << " " << (w-e) << endl;   
+			assert(a[w]-a[e]==w-e);
+            cout << "2) " << (w>=e) << " " << (a[w]<a[e]) << endl;
 			assert(w>=e or  a[w]<a[e]);
+            cout <<"3) " << (w<=e) << " " << (a[w]>a[e]) << endl;
 			assert(w<=e or  a[w]>a[e]);
+            cout <<"4) " << (w==e) << " " << (a[w]!=a[e]) << endl;
 			assert(w==e or a[w]!=a[e]);
+            cout <<"5) " << (w>e) << " " << (a[w]<=a[e]) << endl;
 			assert(w>e  or a[w]<=a[e]);
+            cout <<"6) " << (w<e) << " " << (a[w]>=a[e]) << endl;
 			assert(w<e  or a[w]>=a[e]);
+            cout <<"7) " << (w!=e) << " " << (a[w]==a[e]) << endl;
 			assert(w!=e or a[w]==a[e]);
-			assert(a[w]+(-d)==a[e]);
-			assert(a[w]-(d)==a[e]);
+            cout <<"8) " << *(a[w]+(e-w)) << " " << *(a[e]) << endl;
+            // ic(a[w],w,e,a.size(),e-w,a[w]+(e-w),a[w]+1,a[e])
+            // ic(a)
+			assert(a[w]+(e-w)==a[e]);
+            cout <<"9) " << *(a[w]-(w-e)) << " " << *(a[e]) << endl;
+			assert(a[w]-(w-e)==a[e]);
 		}
 	}
 	auto s=a;
@@ -563,7 +577,6 @@ void check(T q,T e){
 	reverse(s.begin(),s.end());
 	assert(a==s);
 }
-
 
 // int main(){
 // 	// ic(aa)
