@@ -1,35 +1,26 @@
 #include <iostream>
 #include <iterator>
-#include <vector>
+
+#define private public
+#define class struct
 
 using namespace std;
-
-#define A cout << "here" << endl;
 
 template<typename T>
 class LinkedList {
 public:
-    class ListIterator;
-// private:
-//     typedef ListIterator _iterator;
-
-//     typedef size_t size_type;
-//     typedef T value_type;
-//     typedef value_type& reference;
-//     typedef const value_type& const_reference;
-//     typedef value_type* pointer;
-//     typedef const value_type* const_pointer;
+    class Iterator;
+    class IteratorRev;
 
 public:
-    using difference_type = std::ptrdiff_t;
-    using value_type = T;
-    using pointer = T*;
-    using reference = T&;
-    using iterator_category = std::random_access_iterator_tag;
-    using size_type = size_t;
-    using const_reference = const value_type&;
-    using _iterator = ListIterator;
-
+    typedef std::ptrdiff_t difference_type;
+    typedef T value_type ;
+    typedef T* pointer; 
+    typedef T& reference;
+    typedef std::random_access_iterator_tag iterator_category;
+    typedef size_t size_type;
+    typedef const value_type& const_reference;
+    typedef Iterator iterator;
 
     class ListNode;
     
@@ -38,169 +29,141 @@ public:
     ListNode *head;
     ListNode *tail;
     
-    void copy(const LinkedList &);//                        copy() - check
+    void copy(const LinkedList &);
 
 public: 
-    LinkedList();//                                         constructor() - check
-    LinkedList(const LinkedList &);//                       constructor() - check
-    ~LinkedList();//                                        destructor()
+    LinkedList(): count(0), head(), tail() {}
+    LinkedList(const LinkedList & val): count(val.count), head(val.head), tail(val.tail) {}
+    ~LinkedList(){}
+    explicit LinkedList(size_type);
 
-    explicit LinkedList(size_type);//                       constructor() - check
+    LinkedList& operator =(const LinkedList & other) { if(this != &other) copy(other); return *this; }
 
-    LinkedList& operator =(const LinkedList &);//           operator = - check 
+    void assign(size_type, const value_type &);
 
-    void assign(size_type, const value_type &);//           assign - check
-    //void assign(Iter);//                                    x
+    reference front() { return head->value; }                       
+    const_reference front() const { return head->value; }
+    reference back() { return tail->value; }   
+    const_reference back() const { return tail->value; }         
 
-    reference front();//                                    front() - check
-    const_reference front() const;//                        front() - check
-    reference back();//                                     back() - cehck
-    const_reference back() const;//                         back() - check 
+    iterator begin() { return Iterator(head); };
+    iterator end() { return Iterator(tail)+1; };
+    IteratorRev rbegin() { IteratorRev res(end()-1); return res; }
+    IteratorRev rend() { IteratorRev res(begin()-1); return res; }
 
-    _iterator begin();//                                     begin() - check 
-    _iterator end();//                                       end() - check
-    _iterator rbegin();//                            x
-    _iterator rend();//                              x
-
-    bool empty() const;//                                   empty() - check
-    size_type size() const;//                               size() - check
+    bool empty() const { return count == 0; }
+    size_type size() const { return count; }
 
     
-    void clear();//                                         clear() - check
-    _iterator insert(_iterator, const value_type &);//        insert - check
-    void insert(_iterator, size_type, const value_type &);// insert - check
-    //void insert(_iterator, _iterator, _iterator);//          не буду реализовывать 
+    void clear();
+    iterator insert(iterator, const value_type &);
+    void insert(iterator, size_type, const value_type &);
 
-    _iterator erase(_iterator);//                                   erase - check
-    _iterator erase(_iterator, _iterator);//                      x
+    iterator erase(iterator);
 
-    void pop_back();//                                      pop_back() - check
-    void push_back(const value_type &);//                            push_back() - check 
-    void pop_front();//                                     pop_front() - check 
-    void push_front(const value_type &);//                           push_front() - check
+    void pop_back();
+    void push_back(const value_type &);
+    void pop_front();
+    void push_front(const value_type &);
 
-    //void resize(size_type);//                               x
-    // void swap(LinkedList &);//                              x
+    void resize(size_type);
+    void reverse();
+    void swap(LinkedList &);
 
-    void Print(); // - check 
-    ListNode * GetPrev(ListNode *);// GetPrev - check
-    ListNode * GetNext(ListNode *);// GetNext - check
-    // friend void swap(typename LinkedList<T>::ListIterator, typename LinkedList<T>::ListIterator);
+    friend std::ostream& operator << (std::ostream& out, LinkedList& List) {
+        Iterator cur(List.head);
+
+        for (size_t i = 0; i < List.count; i++) {
+
+            out << *cur << " ";
+            ++cur;
+        }
+        return out;
+    }
 };
 
 template<typename T>
 class LinkedList<T>::ListNode {
-    //template<typename T>
     friend class LinkedList;
-
-    //template<typename T>
-    friend class ListIterator;
+    friend class Iterator;
 
     T value;
     ListNode * next;
     ListNode * prev;
 public:
-    ListNode();//
-    ListNode(const T&);//
-    ListNode(const ListNode *); //
+    ListNode(): value(), next(0), prev(0) {}
+    ListNode(const T& val): value(val), next(0), prev(0) {}
+    ListNode(const LinkedList<T>::ListNode * val) : value((*val).value), next((*val).next), prev((*val).prev) {}
 };
 
 template<typename T>
-class LinkedList<T>::ListIterator {
-    //template<typename It>
+class LinkedList<T>::Iterator {
+public:
+    typedef typename LinkedList<T>::ListNode* node;
+private:
     friend struct std::iterator_traits<T>;
 
-    // using difference_type = std::ptrdiff_t;
-    // using value_type = typename LinkedList<T>::value_type;
-    // using pointer = typename LinkedList<T>::value_type*;
-    // using reference = typename LinkedList<T>::value_type&;
-    // using iterator_category = std::forward_iterator_tag;
-    typename LinkedList<T>::ListNode * node;
-    typename LinkedList<T>::ListNode * next;
-    typename LinkedList<T>::ListNode * prev;
+    node cur;
+    node next;
+    node prev;
+private:
     T flag;
 
 public:
-    using difference_type = std::ptrdiff_t;
-    using value_type = T;
-    using pointer = T*;
-    using reference = T&;
-    using iterator_category = std::random_access_iterator_tag;
-    using size_type = size_t;
-    using const_reference = const value_type&;
-    using _iterator = ListIterator;
-
-    using orginal_type=LinkedList<T>;
-
-    bool target;
-/*
     typedef std::ptrdiff_t difference_type;
-    typedef typename LinkedList<T>::value_type value_type;
-    typedef typename LinkedList<T>::value_type* pointer;
-    typedef typename LinkedList<T>::value_type& reference;
-    typedef std::forward_iterator_tag iterator_category;
-*/
-    //сделать флаг для реверса
+    typedef T value_type;
+    typedef T* pointer;
+    typedef T& reference;
+    typedef std::random_access_iterator_tag iterator_category;
+    typedef size_t size_type;
+    typedef const value_type& const_reference;
+    typedef Iterator iterator;
 public:
-    ListIterator(typename LinkedList<T>::ListNode *n):node(n), flag(), target(1) {
-        next = node?node->next:0; 
-        prev = node?node->prev:0; 
+    Iterator(typename LinkedList<T>::ListNode *n):cur(n), flag(){
+        next = cur?cur->next:0; 
+        prev = cur?cur->prev:0; 
     }
 
-    bool operator==(const ListIterator & other) const { return *this - other == 0; }
-    bool operator!=(const ListIterator & other) const { return !(*this == other); } 
-    bool operator<(const ListIterator & other) const { if(target)return *this - other < 0; else return *this - other > 0; }
-    bool operator>(const ListIterator & other) const { if(target)return *this - other > 0; else return *this - other < 0; }
-    bool operator<=(const ListIterator & other) const { if(target)return !(node > other.node); else return !(node < other.node); }
-    bool operator>=(const ListIterator & other) const { if(target)return !(node < other.node); else return !(node > other.node); }
+    bool operator==(const Iterator & other) const { return *this - other ==0; }
+    bool operator!=(const Iterator & other) const { return *this - other !=0; }
+    bool operator< (const Iterator & other) const { return *this - other < 0; }
+    bool operator> (const Iterator & other) const { return *this - other > 0; }
+    bool operator>=(const Iterator & other) const { return *this - other >=0; }
 
-    typename LinkedList<T>::reference operator*() { if(node != nullptr) return node->value; else return flag; }
-    typename LinkedList<T>::const_reference operator*() const { if(node != nullptr)return node->value; else return flag; }
+    typename LinkedList<T>::reference operator*() { if(cur != nullptr) return cur->value; else return flag; }
+    typename LinkedList<T>::const_reference operator*() const { if(cur != nullptr)return cur->value; else return flag; }
 
-    bool IsBegin() {
-        if(prev == nullptr) return true;
-        return false;
-    }
-/*
-    LinkedList<T>::ListNode* GetNode() {
-        if(node) return node;
-        else return flag;
-    }
-*/
-    ListIterator operator++() {
-        if(node)  {
-            if(target) {prev=node; node=next; next=next?next->next:0; }
-            else { next = node; node = prev; prev = prev?prev->prev:0; }
-        }
+    bool IspreBegin() { if(prev == nullptr and cur==0) return true; return false; }
+    Iterator operator++() {
+        prev=cur; 
+        cur=next; 
+        next=next?next->next:0;
         return *this;
     }
-    ListIterator operator--() {
-        if(node) {
-            if(target){ next = node; node = prev; prev = prev?prev->prev:0; }
-            else {prev=node; node=next; next=next?next->next:0; }
-        }
+    Iterator operator--() {
+        next = cur; 
+        cur = prev; 
+        prev = prev?prev->prev:0; 
         return *this;
     }
 
-    ListIterator operator+=(size_type n) {
+    Iterator operator+=(size_type n) {
         for(size_type i = 0; i < n; i++) {
-            if(node){
-                if(target){prev=node; node=next; next=next?next->next:0; }
-                else { next = node; node = prev; prev = prev?prev->prev:0; }
-            }
+            prev=cur; 
+            cur=next; 
+            next=next?next->next:0;
         }
         return *this;
     }
-    ListIterator operator-=(size_type n) {
+    Iterator operator-=(size_type n) {
         for(size_type i = 0; i < n; i++) {
-            if(node) {
-                if(target){ next = node; node = prev; prev = prev?prev->prev:0; }
-                else {prev=node; node=next; next=next?next->next:0; }
-            }
+            next = cur; 
+            cur = prev; 
+            prev = prev?prev->prev:0; 
         }
         return *this;
     }
-    ListIterator&operator+=(long n) {
+    Iterator&operator+=(long n) {
         if (n<0){
             *this-=size_t(-n);
         }else{
@@ -208,81 +171,104 @@ public:
         }
         return *this;
     }
-    ListIterator&operator-=(long n){
-        return *this+=(-n);
-    }
+    Iterator&operator-=(long n){ return *this+=(-n); }
 
-    ListIterator operator+(long n) {
-        auto q=*this;
+    Iterator operator+(long n) {
+        Iterator q=*this;
         q+=n;
         return q;
     }
-    ListIterator operator-(long n) {
-        auto q=*this;
+    Iterator operator-(long n) {
+        Iterator q=*this;
         q-=n;
         return q;
     }
-    T&operator[](long value) {
-        return *(*this+value);
-    }
-    friend typename LinkedList<value_type>::_iterator LinkedList<value_type>::insert(LinkedList<value_type>::_iterator, const value_type &);
-    friend void LinkedList<value_type>::insert(LinkedList<value_type>::_iterator, size_type, const value_type &);
-    friend typename LinkedList<T>::_iterator LinkedList<T>::erase(LinkedList<T>::_iterator);
-};
+    
+    T&operator[](long value) { return *(*this+value); }
 
-template<typename TT>
-auto operator-(TT q,TT w) ->
-    enable_if_t<
-        is_same_v<
-            typename
-            LinkedList<typename TT::value_type>::ListIterator,
-            TT
-        >,
-        ptrdiff_t
-    >{
-        using T=typename TT::orginal_type;
-        //if(q.IsZero() || w.IsZero()) return 0;
+    friend ptrdiff_t operator-(Iterator q,Iterator w) {
         ptrdiff_t count_q = 0;
         ptrdiff_t count_w = 0;
-        while(!q.IsBegin()) {
+        while(!q.IspreBegin()) {
             count_q++;
             --q;
         }
-        while(!w.IsBegin()) {
+        while(!w.IspreBegin()) {
             count_w++;
             --w;
         }
         return (count_q - count_w);
-        //else return (count_w - count_q);
-}
-/*
-template<typename T>
-void swap(typename LinkedList<T>::ListIterator& f, typename LinkedList<T>::ListIterator& s) {
-    typename LinkedList<T>::ListIterator f_pr = --f;
-    typename LinkedList<T>::ListIterator f_ne = ++f;
-    typename LinkedList<T>::ListIterator s_pr = --s;
-    typename LinkedList<T>::ListIterator s_ne = ++s;
-    
-
-}
-*/
-template<typename T>
-LinkedList<T>::ListNode::ListNode(): value(), next(0), prev(0) {}
+    }
+};
 
 template<typename T>
-LinkedList<T>::ListNode::ListNode(const T& val): value(val), next(0), prev(0) {}
+class LinkedList<T>::IteratorRev {
+private:
+    T flag;
+public:
+    typedef std::ptrdiff_t difference_type;
+    typedef T value_type;
+    typedef T* pointer;
+    typedef T& reference;
+    typedef std::random_access_iterator_tag iterator_category;
+    typedef size_t size_type;
+    typedef const value_type& const_reference;
+    typedef Iterator iterator;
 
-template<typename T>
-LinkedList<T>::ListNode::ListNode(const LinkedList<T>::ListNode * val) : value((*val).value), next((*val).next), prev((*val).prev) {}
+    typedef LinkedList<T> orginal_type;
 
-template<typename T>
-LinkedList<T>::LinkedList(): count(0), head(), tail() {}
+    LinkedList<T>::Iterator It;
+public:
+    IteratorRev(typename LinkedList<T>::Iterator it):It(it) {}
 
-template<typename T>
-LinkedList<T>::LinkedList(const LinkedList & val): count(val.count), head(val.head), tail(val.tail) {}
+    bool operator==(const IteratorRev & other) const { return *this - other ==0; return *this - other ==0; }
+    bool operator!=(const IteratorRev & other) const { return *this - other !=0; return *this - other !=0; }
+    bool operator< (const IteratorRev & other) const { return *this - other < 0; return *this - other > 0; }
+    bool operator> (const IteratorRev & other) const { return *this - other > 0; return *this - other < 0; }
+    bool operator<=(const IteratorRev & other) const { return *this - other <=0; return *this - other >=0; }
+    bool operator>=(const IteratorRev & other) const { return *this - other >=0; return *this - other <=0; }
 
-template<typename T>
-LinkedList<T>::~LinkedList(){}
+    typename LinkedList<T>::reference operator*() { return *It; }
+    typename LinkedList<T>::const_reference operator*() const { return *It; }
+
+    IteratorRev operator++() { --It; return *this; }
+    IteratorRev operator--() { ++It; return *this; }
+
+    IteratorRev operator+=(size_type n) {
+        for(size_type i = 0; i < n; i++) {
+            --It;
+        }
+        return *this;
+    }
+    IteratorRev operator-=(size_type n) {
+        for(size_type i = 0; i < n; i++) {
+            ++It;
+        }
+        return *this;
+    }
+    IteratorRev&operator+=(long n) {
+        if (n<0){
+            *this-=size_t(-n);
+        }else{
+            *this+=size_t(n);
+        }
+        return *this;
+    }
+    IteratorRev&operator-=(long n){ return *this+=(-n); }
+
+    IteratorRev operator+(long n) {
+        IteratorRev q=*this;
+        q+=n;
+        return q;
+    }
+    IteratorRev operator-(long n) {
+        IteratorRev q=*this;
+        q-=n;
+        return q;
+    }
+    T&operator[](long value) { return *(this->It-value); }
+    friend ptrdiff_t operator-(IteratorRev q,IteratorRev w) { return (w.It - q.It); }
+};
 
 template<typename T>
 LinkedList<T>::LinkedList(size_type val): count(val), head(), tail() {
@@ -306,7 +292,6 @@ LinkedList<T>::LinkedList(size_type val): count(val), head(), tail() {
 
 template<typename T>
 void LinkedList<T>::copy(const LinkedList & other){
-    clear();
     if(other.count) {
         ListNode *cur1 = other.head;
         while(cur1) {
@@ -317,34 +302,19 @@ void LinkedList<T>::copy(const LinkedList & other){
 }
 
 template<typename T>
-LinkedList<T>& LinkedList<T>::operator =(const LinkedList<T> & other) {
-    if(this != &other) copy(other);
-    return *this;
-}
-
-template<typename T>
-bool LinkedList<T>::empty() const { return count == 0; }
-
-template<typename T>
-typename LinkedList<T>::size_type LinkedList<T>::size() const { return count; }
-
-template<typename T>
 void LinkedList<T>::clear() {
     while(count) { pop_front(); }
     head = nullptr;
     tail = nullptr;
-    head->next = 0;
-    head->prev = 0;
-    tail->next = 0;
-    tail->prev = 0;
 }
 
 template<typename T>
 void LinkedList<T>::pop_back() {
-    assert( tail );
     if( !tail->prev ) {
         delete tail;
         count = 0;
+        tail = nullptr;
+        head = nullptr;
         return;
     }
     ListNode *cur = new ListNode(tail);
@@ -356,16 +326,11 @@ void LinkedList<T>::pop_back() {
 
 template<typename T>
 void LinkedList<T>::pop_front() {
-    assert(head);
     if(!head->next) {
         delete head;
         count = 0;
         head = 0;
         tail = 0;
-        head->next = 0;
-        tail->next = 0;
-        head->prev = 0;
-        tail->prev = 0;
         return;   
     }
     ListNode *tmp = new ListNode(head);
@@ -380,16 +345,12 @@ void LinkedList<T>::push_back(const T & n) {
     ListNode * val = new ListNode(n);
     if(!tail) {
         tail = val;
-        head = val;
-        tail->prev = head;
-        head->prev = 0;
-        head->next = tail; 
+        head = tail;
     } else {
         tail->next = val;
         val->prev = tail;
         tail = val;
     }
-    tail->next = nullptr;
     ++count;
 }
 
@@ -398,10 +359,7 @@ void LinkedList<T>::push_front(const T & n) {
     ListNode * val = new ListNode(n);
     if( !head ) {
         head = val;
-        tail = head;
-        tail->prev = nullptr;
-        tail->next = 0;
-        head->next = nullptr; 
+        tail = val;
     } else {
         head->prev = val;
         val->next = head;
@@ -412,58 +370,22 @@ void LinkedList<T>::push_front(const T & n) {
 }
 
 template<typename T>
-typename LinkedList<T>::reference LinkedList<T>::front() {
-    return head->value;
-}
-
-template<typename T>
-typename LinkedList<T>::const_reference LinkedList<T>::front() const {
-    return head->value;
-}
-
-template<typename T>
-typename LinkedList<T>::reference LinkedList<T>::back() {
-    return tail->value;
-}
-
-template<typename T>
-typename LinkedList<T>::const_reference LinkedList<T>::back() const {
-    return tail->value;
-}
-
-//--------------------------------------------------------------------------------------swap()
-// template<typename T>
-// void LinkedList<T>::swap(LinkedList & other) {
-//     size_type len1 = count;
-//     size_type len2 = other.count;
-//     ListNode * cur1 = new ListNode(head);
-//     ListNode * cur2 = new ListNode(other.head);
-//     while(cur1 -> next && cur2->next) {
-//         ListNode * cur3 = cur1;
-
-//     }
-// }
-
-template<typename T>
-typename LinkedList<T>::ListIterator LinkedList<T>::begin() {
-    return ListIterator(head);
-}
-
-template<typename T>
-typename LinkedList<T>::ListIterator LinkedList<T>::end() {
-    return ListIterator(tail->next);
+void LinkedList<T>::swap(LinkedList & other) {
+    LinkedList<T> a = other;
+    other = *this;
+    *this  = a;
 }
 
 template <typename value_type>
-typename LinkedList<value_type>::_iterator LinkedList<value_type>::insert(LinkedList<value_type>::_iterator It, const value_type & val) {
-    ListNode * cur = It->node;
+typename LinkedList<value_type>::iterator LinkedList<value_type>::insert(LinkedList<value_type>::iterator It, const value_type & val) {
+    ListNode * cur = It.cur;
     if(cur == head) {
         push_front(val);
-        return _iterator(head);
+        return iterator(head);
     }
     if(cur == tail->next) {
         push_back(val);
-        return _iterator(tail);
+        return iterator(tail);
     }
     ListNode * pr = cur->prev;
     ListNode * new_cur = new ListNode(val);
@@ -472,27 +394,28 @@ typename LinkedList<value_type>::_iterator LinkedList<value_type>::insert(Linked
     new_cur->next = cur;
     cur->prev = new_cur;
     count++;
-    return _iterator(new_cur);
-
+    return iterator(new_cur);
 }
 
 template<typename value_type>
-void LinkedList<value_type>::insert(LinkedList<value_type>::_iterator It, size_type n, const value_type & val) {
-    ListNode * cur = It->node;
+void LinkedList<value_type>::insert(LinkedList<value_type>::iterator It, size_type n, const value_type & val) {
+    ListNode * cur = It.cur;
     if(cur == head) {
         for(size_type i = 0; i < n; i++) {
             push_front(val);
         }
+        return;
     }
     if(cur == tail->next) {
         
-        _iterator res = _iterator(cur);
+        iterator res = iterator(cur);
         for(size_type i = 0; i < n; i++) {
             push_back(val);
         }
+        return;
     } else {
-        _iterator res = _iterator(cur);
-        ListNode * pr = GetPrev(cur);
+        iterator res = iterator(cur);
+        ListNode * pr = cur->prev;
         for(size_type i = 0; i < n; i++) {
             
             ListNode * new_cur = new ListNode(val);
@@ -507,16 +430,15 @@ void LinkedList<value_type>::insert(LinkedList<value_type>::_iterator It, size_t
 }
 
 template<typename T>
-typename LinkedList<T>::_iterator LinkedList<T>::erase(LinkedList<T>::_iterator It) {
-    ListNode * cur = It->node;
-    assert(cur == tail->next);
-    while(_iterator(cur) != It) { cur = cur->next; }
+typename LinkedList<T>::iterator LinkedList<T>::erase(LinkedList<T>::iterator It) {
+    ListNode * cur = It.cur;
+    while(iterator(cur) != It) { cur = cur->next; }
     if(cur == head) {
         pop_front();
-        return _iterator(head);
+        return iterator(head);
     } else if(cur == tail) {
         pop_back();
-        return _iterator(tail);
+        return iterator(tail);
     } else {
         ListNode * pr = cur->prev;
         ListNode * ne = cur->next;
@@ -524,38 +446,8 @@ typename LinkedList<T>::_iterator LinkedList<T>::erase(LinkedList<T>::_iterator 
         pr->next = ne;
         ne->prev = pr;
         count--;
-        return _iterator(ne);
+        return iterator(ne);
     }
-}
-/*
-template<typename T>
-typename LinkedList<T>::_iterator LinkedList<T>::erase(LinkedList<T>::_iterator firstIt, LinkedList<T>::_iterator secondIt) {
-    ListNode * pr = firstIt.node->prev;
-    ListNode * ne = secondIt.node->next;
-    ListNode * cur = firstIt.node;
-    while(cur->next != ne) {
-
-    }
-
-}
-*/
-template<typename T>
-void LinkedList<T>::Print() {
-    LinkedList<T>::ListIterator b = begin();
-    while(b != end()) {
-        cout << *b << endl;
-        ++b;
-    }
-}
-
-template<typename T>
-typename LinkedList<T>::ListNode * LinkedList<T>::GetPrev(ListNode * cur) {
-    return cur->prev;
-}
-
-template<typename T>
-typename LinkedList<T>::ListNode * LinkedList<T>::GetNext(ListNode * cur) {
-    return cur->next;
 }
 
 template<typename T>
@@ -566,99 +458,50 @@ void LinkedList<T>::assign(size_type n, const value_type & val) {
     }
 }
 
-template<typename T> 
-typename LinkedList<T>::_iterator LinkedList<T>::rbegin() {
-    ListIterator res = end();
-    res.target = 0;
-    return res;
+template<typename T>
+void LinkedList<T>::resize(size_type n) {
+    while(n < size()) { pop_back(); }
+    while(n > size()) { push_back(T());}
 }
 
 template<typename T>
-typename LinkedList<T>::_iterator LinkedList<T>::rend() {
-    ListIterator res = begin();
-    res.target = 0;
-    return res;
-}
-
-//push's and pop's working 
-
-template<typename T>
-void check(T q,T e){
-	vector<T> a;
-	for (auto w=q;w!=e;++w){
-		a.push_back(w);
-	}
-	a.push_back(e);
-	for (int w=0;w<a.size();++w){
-		for (int e=0;e<a.size();++e){
-            //cout << w << " " << e << endl;
-            //cout << *a[w] << " " << *a[e] << endl;
-            cout << "1) " << (a[w]-a[e]) << " " << (w-e) << endl;   
-			assert(a[w]-a[e]==w-e);
-            cout << "2) " << (w>=e) << " " << (a[w]<a[e]) << endl;
-			assert(w>=e or  a[w]<a[e]);
-            cout <<"3) " << (w<=e) << " " << (a[w]>a[e]) << endl;
-			assert(w<=e or  a[w]>a[e]);
-            cout <<"4) " << (w==e) << " " << (a[w]!=a[e]) << endl;
-			assert(w==e or a[w]!=a[e]);
-            cout <<"5) " << (w>e) << " " << (a[w]<=a[e]) << endl;
-			assert(w>e  or a[w]<=a[e]);
-            cout <<"6) " << (w<e) << " " << (a[w]>=a[e]) << endl;
-			assert(w<e  or a[w]>=a[e]);
-            cout <<"7) " << (w!=e) << " " << (a[w]==a[e]) << endl;
-			assert(w!=e or a[w]==a[e]);
-            cout <<"8) " << *(a[w]+(e-w)) << " " << *(a[e]) << endl;
-			assert(a[w]+(e-w)==a[e]);
-            cout <<"9) " << *(a[w]-(w-e)) << " " << *(a[e]) << endl;
-			assert(a[w]-(w-e)==a[e]);
-		}
-	}
-	auto s=a;
-	s.clear();
-	for (auto w=e;w!=q;--w){
-		s.push_back(w);
-	}
-	s.push_back(q);
-	reverse(s.begin(),s.end());
-	assert(a==s);
+void LinkedList<T>::reverse() {
+    if(!count) return;
+    typename LinkedList<T>::Iterator q=begin();
+    typename LinkedList<T>::Iterator w=end()-1;
+    while (q!=w){
+        T t=*q;
+        *q=*w;
+        *w=t;
+        ++q;
+        --w;
+    }
 }
 
 int main() {
-    LinkedList<int> mylist;
-
+    LinkedList<int> a;
+    a.push_back(12);
+    a.push_back(28);
+    a.push_back(3);
+    a.push_back(48);
+    a.push_front(4);
+    a.push_back(8);
+    a.push_front(7);
+    a.insert(a.begin()+4, 8);
+    a.push_back(126);
+    cout << a;
     cout << "\n_________________________________________\n";
-    mylist.push_back(4);
-    cout << (mylist.begin() == mylist.end());
-    mylist.Print();
-    cout << "\n_________________________________________\n";
-    //mylist.push_front(3);
     
-    //LinkedList<int> secondlist;
-    //mylist.Print();
-    //cout << *(++mylist.begin());
-    //mylist.insert(mylist.end()-1, 1);
+    sort(a.begin(), a.end());
+    cout << a;
+    cout << "\n______________________________________________\n";
     
-    //cout << "--edn: " << *(--mylist.end()) << endl;
-    // mylist.insert(mylist.end()-1, 2, 5);
-    // mylist.insert(mylist.begin(), 4, 7);
+    sort(a.rbegin(), a.rend());
+    cout << a;
+    cout << "\n______________________________________________\n";
+    
+    a.insert(find(a.begin(), a.end(), 7),16);
+    cout << a;
 
-    // mylist.Print();
-
-    // reverse(mylist.begin(), mylist.end());
-    // check(mylist.begin(), mylist.end());
-    //check(mylist.begin(), mylist.end());
-    //cout << "--edn: " << *(--mylist.end()) << endl;
-    //mylist.Print();
-    //cout << "\n_________________________________________\n";
-    //cout << "find: " << *(find(mylist.begin(), mylist.end(), 1)) << endl;
-    //cout << *mylist.begin();
-    //cout << *mylist.end();
-    //cout << mylist.end() - mylist.begin() << " : " << mylist.size() << endl;
-    //if(mylist.end() == mylist.end()) cout << "yes";
-    //sort(mylist.begin(), mylist.end());
-    //mylist.Print();
-    //cout << "\n_________________________________________\n";
-    //sort(++mylist.rbegin(), mylist.rend());
-    //mylist.Print();
     return 0;
 }

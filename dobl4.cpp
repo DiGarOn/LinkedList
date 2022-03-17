@@ -137,7 +137,6 @@ public:
     bool operator!=(const ListIterator & other) const {check();other.check(); if(target)return *this - other !=0; return *this - other !=0; }
     bool operator< (const ListIterator & other) const {check();other.check(); if(target)return *this - other < 0; return *this - other > 0; }
     bool operator> (const ListIterator & other) const {check();other.check(); if(target)return *this - other > 0; return *this - other < 0; }
-    bool operator<=(const ListIterator & other) const {check();other.check(); if(target)return *this - other <=0; return *this - other >=0; }
     bool operator>=(const ListIterator & other) const {check();other.check(); if(target)return *this - other >=0; return *this - other <=0; }
 
     typename LinkedList<T>::reference operator*() {check(); if(node != nullptr) return node->value; else return flag; }
@@ -736,7 +735,8 @@ int main() {
     a.push_back(6);
     //cout << "\n_________________________________________\n";
     //sort(a.rbegin(), a.rend());
-    a.Print();
+    cout << a.begin()[0];
+    //a.Print();
     cout << "\n_________________________________________\n";
     
     sort(a.rbegin(), a.rend());
