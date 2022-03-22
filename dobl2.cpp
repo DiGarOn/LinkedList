@@ -1,6 +1,8 @@
 #include <iostream>
 #include <iterator>
 #include <vector>
+#include <bits/stdc++.h>
+// #include "test.cpp"
 
 #define private public
 #define class struct
@@ -83,7 +85,8 @@ public:
     void pop_front();//                                     pop_front() - check 
     void push_front(const value_type &);//                           push_front() - check
 
-    //void resize(size_type);//                               x
+    void resize(size_type);//                               x
+    void reverse();
     void swap(LinkedList &);//                              x
 
     void Print(); // - check 
@@ -119,6 +122,9 @@ class LinkedList<T>::ListIterator {
     // using pointer = typename LinkedList<T>::value_type*;
     // using reference = typename LinkedList<T>::value_type&;
     // using iterator_category = std::forward_iterator_tag;
+    typename LinkedList<T>::ListNode * node;
+    typename LinkedList<T>::ListNode * next;
+    typename LinkedList<T>::ListNode * prev;
 public:
     void check()const{
         assert(prev?prev->next==node:1);
@@ -142,9 +148,6 @@ public:
     using orginal_type=LinkedList<T>;
 
     bool target;
-    typename LinkedList<T>::ListNode * node;
-    typename LinkedList<T>::ListNode * next;
-    typename LinkedList<T>::ListNode * prev;
 /*
     typedef std::ptrdiff_t difference_type;
     typedef typename LinkedList<T>::value_type value_type;
@@ -160,20 +163,22 @@ public:
         check();
     }
 
-    bool operator==(const ListIterator & other) const {check();other.check(); return *this - other == 0; }
-    bool operator!=(const ListIterator & other) const {check();other.check(); return !(*this == other); } 
-    bool operator<(const ListIterator & other) const {check();other.check(); if(target)return *this - other < 0; else return *this - other > 0; }
-    bool operator>(const ListIterator & other) const {check();other.check(); if(target)return *this - other > 0; else return *this - other < 0; }
-    bool operator<=(const ListIterator & other) const {check();other.check(); if(target)return !(node > other.node); else return !(node < other.node); }
-    bool operator>=(const ListIterator & other) const {check();other.check(); if(target)return !(node < other.node); else return !(node > other.node); }
+    bool operator==(const ListIterator & other) const {check();other.check(); if(target)return *this - other ==0; return *this - other ==0; }
+    bool operator!=(const ListIterator & other) const {check();other.check(); if(target)return *this - other !=0; return *this - other !=0; }
+    bool operator< (const ListIterator & other) const {check();other.check(); if(target)return *this - other < 0; return *this - other > 0; }
+    bool operator> (const ListIterator & other) const {check();other.check(); if(target)return *this - other > 0; return *this - other < 0; }
+    bool operator<=(const ListIterator & other) const {check();other.check(); if(target)return *this - other <=0; return *this - other >=0; }
+    bool operator>=(const ListIterator & other) const {check();other.check(); if(target)return *this - other >=0; return *this - other <=0; }
 
     typename LinkedList<T>::reference operator*() {check(); if(node != nullptr) return node->value; else return flag; }
     typename LinkedList<T>::const_reference operator*() const {check(); if(node != nullptr)return node->value; else return flag; }
 
-    bool IsBegin() {
+    bool IspreBegin() {
+        // ic(*this)
         check();
+        // auto g=this[150];
         assert(node or next or prev);
-        if(prev == nullptr) return true;
+        if(prev == nullptr and node==0) return true;
         return false;
     }
 /*
@@ -265,7 +270,6 @@ class LinkedList<T>::ReverseIterator {
     // using iterator_category = std::forward_iterator_tag;
 private:
     T flag;
-
 public:
     using difference_type = std::ptrdiff_t;
     using value_type = T;
@@ -279,6 +283,10 @@ public:
     using orginal_type=LinkedList<T>;
 
     LinkedList<T>::ListIterator It;
+
+    void check()const{
+        It.check();
+    }
 /*
     typedef std::ptrdiff_t difference_type;
     typedef typename LinkedList<T>::value_type value_type;
@@ -290,28 +298,16 @@ public:
 public:
     ReverseIterator(typename LinkedList<T>::ListIterator it):It(it) {}
 
-    bool operator==(const ReverseIterator & other) const { return It - other == 0; }
-    bool operator!=(const ReverseIterator & other) const { return !(It == other.It); } 
-    bool operator<(const ReverseIterator & other) const { return It - other.It > 0; }
-    bool operator>(const ReverseIterator & other) const { return It - other.It < 0; }
-    bool operator<=(const ReverseIterator & other) const { return !(It < other.It); }
-    bool operator>=(const ReverseIterator & other) const { return !(It > other.It); }
+    bool operator==(const ReverseIterator & other) const {check();other.check(); return *this - other ==0; return *this - other ==0; }
+    bool operator!=(const ReverseIterator & other) const {check();other.check(); return *this - other !=0; return *this - other !=0; }
+    bool operator< (const ReverseIterator & other) const {check();other.check(); return *this - other < 0; return *this - other > 0; }
+    bool operator> (const ReverseIterator & other) const {check();other.check(); return *this - other > 0; return *this - other < 0; }
+    bool operator<=(const ReverseIterator & other) const {check();other.check(); return *this - other <=0; return *this - other >=0; }
+    bool operator>=(const ReverseIterator & other) const {check();other.check(); return *this - other >=0; return *this - other <=0; }
 
     typename LinkedList<T>::reference operator*() { return *It; }
     typename LinkedList<T>::const_reference operator*() const { return *It; }
-/*
-    bool IsBegin() {
-        assert(node or next or prev);
-        if(prev == nullptr) return true;
-        return false;
-    }
-*/
-/*
-    LinkedList<T>::ListNode* GetNode() {
-        if(node) return node;
-        else return flag;
-    }
-*/
+
     ReverseIterator operator++() {
         --It;
         return *this;
@@ -335,28 +331,28 @@ public:
     }
     ReverseIterator&operator+=(long n) {
         if (n<0){
-            *this+=size_t(-n);
+            *this-=size_t(-n);
         }else{
-            *this-=size_t(n);
+            *this+=size_t(n);
         }
         return *this;
     }
     ReverseIterator&operator-=(long n){
-        return *this+=(n);
+        return *this+=(-n);
     }
 
     ReverseIterator operator+(long n) {
         auto q=*this;
-        q-=n;
+        q+=n;
         return q;
     }
     ReverseIterator operator-(long n) {
         auto q=*this;
-        q+=n;
+        q-=n;
         return q;
     }
     T&operator[](long value) {
-        return *(*this->It-value);
+        return *(this->It-value);
     }
     //friend typename LinkedList<value_type>::_iterator LinkedList<value_type>::insert(LinkedList<value_type>::_iterator, const value_type &);
     //friend void LinkedList<value_type>::insert(LinkedList<value_type>::_iterator, size_type, const value_type &);
@@ -380,6 +376,20 @@ auto to_str(TT q) ->
 }
 
 template<typename TT>
+auto to_str(TT q) ->
+    enable_if_t<
+        is_same_v<
+            typename
+            LinkedList<typename TT::value_type>::ReverseIterator,
+            TT
+        >,
+        decltype(vector({q.It.prev,q.It.node,q.It.next}))
+    >{
+        using T=typename TT::orginal_type;
+        return vector({q.It.prev,q.It.node,q.It.next});
+}
+
+template<typename TT>
 auto operator-(TT q,TT w) ->
     enable_if_t<
         is_same_v<
@@ -389,10 +399,11 @@ auto operator-(TT q,TT w) ->
         >,
         ptrdiff_t
     >{
+    q.check();w.check();
     
         using T=typename TT::orginal_type;
         
-        return (q.It - w.It);
+        return (w.It - q.It);
         //else return (count_w - count_q);
 }
 
@@ -407,41 +418,24 @@ auto operator-(TT q,TT w) ->
         >,
         ptrdiff_t
     >{
+        // ic(q,w)
     q.check();w.check();
         using T=typename TT::orginal_type;
         //if(q.IsZero() || w.IsZero()) return 0;
         ptrdiff_t count_q = 0;
         ptrdiff_t count_w = 0;
-        while(!q.IsBegin()) {
+        while(!q.IspreBegin()) {
             count_q++;
             --q;
         }
-        while(!w.IsBegin()) {
+        while(!w.IspreBegin()) {
             count_w++;
             --w;
         }
         return (count_q - count_w);
         //else return (count_w - count_q);
 }
-/*
-template<typename T>
-void swap(typename LinkedList<T>::ListIterator& f, typename LinkedList<T>::ListIterator& s) {
-    LinkedList<T>::ListNode * f_pr = f.prev;
-    LinkedList<T>::ListNode * f_ne = f.next;
-    LinkedList<T>::ListNode * s_pr = s.prev;
-    LinkedList<T>::ListNode * s_ne = s.next;
-    LinkedList<T>::ListNode * f_cur = f.node;
-    LinkedList<T>::ListNode * f_cur = f.node;
-    f_cur->prev = s_pr;
-    s_pr->next = f_cur;
-    f_cur->next = s_ne;
-    s_ne->prev = f_cur;
-    s_cur->prev = f_pr;
-    f_pr->next = s_cur;
-    s_cur->next = f_ne;
-    f_ne->prev = s_cur;
-}
-*/
+
 template<typename T>
 LinkedList<T>::ListNode::ListNode(): value(), next(0), prev(0) {}
 
@@ -509,18 +503,17 @@ void LinkedList<T>::clear() {
     while(count) { pop_front(); }
     head = nullptr;
     tail = nullptr;
-    head->next = 0;
-    head->prev = 0;
-    tail->next = 0;
-    tail->prev = 0;
 }
 
 template<typename T>
 void LinkedList<T>::pop_back() {
-    assert( tail );
+    assert( tail!=0 );
     if( !tail->prev ) {
+        //cout << "tail->value: " << tail->value << endl;
         delete tail;
         count = 0;
+        tail = nullptr;
+        head = nullptr;
         return;
     }
     ListNode *cur = new ListNode(tail);
@@ -532,16 +525,12 @@ void LinkedList<T>::pop_back() {
 
 template<typename T>
 void LinkedList<T>::pop_front() {
-    assert(head);
+    assert( head!=0 );
     if(!head->next) {
         delete head;
         count = 0;
         head = 0;
         tail = 0;
-        head->next = 0;
-        tail->next = 0;
-        head->prev = 0;
-        tail->prev = 0;
         return;   
     }
     ListNode *tmp = new ListNode(head);
@@ -562,6 +551,9 @@ void LinkedList<T>::push_back(const T & n) {
         val->prev = tail;
         tail = val;
     }
+    
+    //cout << "tail: " << tail->value << endl;
+    //cout << (tail==0) << endl;
     ++count;
 }
 
@@ -599,6 +591,14 @@ typename LinkedList<T>::reference LinkedList<T>::back() {
 template<typename T>
 typename LinkedList<T>::const_reference LinkedList<T>::back() const {
     return tail->value;
+}
+
+//--------------------------------------------------------------------------------------swap()
+template<typename T>
+void LinkedList<T>::swap(LinkedList & other) {
+    LinkedList<T> a = other;
+    other = *this;
+    *this  = a;
 }
 
 template<typename T>
@@ -674,7 +674,7 @@ typename LinkedList<T>::_iterator LinkedList<T>::erase(LinkedList<T>::_iterator 
     It.check();
     assert(this->begin().IsBegin());
     ListNode * cur = It.node;
-    assert(cur == tail->next);
+    assert(cur != tail->next);
     while(_iterator(cur) != It) { cur = cur->next; }
     if(cur == head) {
         pop_front();
@@ -707,25 +707,11 @@ typename LinkedList<T>::_iterator LinkedList<T>::erase(LinkedList<T>::_iterator 
 template<typename T>
 void LinkedList<T>::Print() {
     LinkedList<T>::ListIterator b = begin();
+    if(!count) return;
     while(b != end()) {
         b.check();
         cout << *b << endl;
         ++b;
-    }
-}
-//--------------------------------------------------------------------------------------------------------------------------------->swap()
-template<typename T> 
-void LinkedList<T>::swap(LinkedList & new_mas) {
-    ListNode* f_head = head;
-    ListNode* f_tail = tail;
-    ListNode* s_head = new_mas.head;
-    ListNode* s_tail = mew_mas.tail;
-    int len_f = size();
-    int len_s = new_mas.size();
-    if(!len_f) {*this = new_mas; new_mas.clear(); return;}
-    if(!len_s) {new_mas = *this; clear(); return;}
-    if(len_f <= len_s) {
-        while()
     }
 }
 
@@ -749,26 +735,80 @@ void LinkedList<T>::assign(size_type n, const value_type & val) {
 
 template<typename T> 
 typename LinkedList<T>::ReverseIterator LinkedList<T>::rbegin() {
-    ReverseIterator res(end());
+    ReverseIterator res(end()-1);
+    return res;
+}
+
+
+template<typename T>
+typename LinkedList<T>::ReverseIterator LinkedList<T>::rend() {
+    ReverseIterator res(begin()-1);
     return res;
 }
 
 template<typename T>
-typename LinkedList<T>::ReverseIterator LinkedList<T>::rend() {
-    ReverseIterator res(begin());
-    return res;
+void LinkedList<T>::resize(size_type n) {
+    while(n < size()) { pop_back(); }
+    while(n > size()) { push_back(T());}
+}
+
+template<typename T>
+void LinkedList<T>::reverse() {
+    if(!count) return;
+    auto q=begin();
+    auto w=end()-1;
+    while (q!=w){
+        auto t=*q;
+        *q=*w;
+        *w=t;
+        ++q;
+        --w;
+    }
+    // ListIterator f = begin();
+    // ListIterator s = --end();
+    // if(f==s) return;
+    // ListNode * a = f.node;
+    // ListNode * b = s.node;
+    // head = b;
+    // head->prev = 0;
+    // head->next = b->prev;
+    // tail = a;
+    // tail->next = 0;
+    // tail->prev = a->next;
+    // f.prev = 0;
+    // f.next = 
+    // ++f;
+    // ++s;
+    // while(f < s) {
+    //     ListNode * a = f.node;
+    //     ListNode * b = s.node;
+    //     ListNode * a_pr = a->prev;
+    //     ListNode * a_ne = a->next;
+    //     ListNode * b_pr = b->prev;
+    //     ListNode * b_ne = b->next;
+    //     a_pr->next = b;
+    //     b->next = a_ne;
+    //     a_ne->prev = b; 
+    //     b->prev = a_pr;
+    //     b_pr->next = a;
+    //     a->next = b_ne;
+    //     b_ne->prev = a; 
+    //     b->prev = b_pr;
+    //     ++f;
+    //     --s;
+    // }
 }
 
 //push's and pop's working 
-
+/*
 template<typename T>
 void check(T q,T e){
 	vector<T> a;
 	for (auto w=q;w!=e;++w){
-        //w.check();
+        w.check();
 		a.push_back(w);
 	}
-    //e.check();
+    e.check();
 	a.push_back(e);
 	for (int w=0;w<a.size();++w){
 		for (int e=0;e<a.size();++e){
@@ -789,6 +829,8 @@ void check(T q,T e){
             cout <<"7) " << (w!=e) << " " << (a[w]==a[e]) << endl;
 			assert(w!=e or a[w]==a[e]);
             cout <<"8) " << *(a[w]+(e-w)) << " " << *(a[e]) << endl;
+            // ic(a[w],w,e,a.size(),e-w,a[w]+(e-w),a[w]+1,a[e])
+            // ic(a)
 			assert(a[w]+(e-w)==a[e]);
             cout <<"9) " << *(a[w]-(w-e)) << " " << *(a[e]) << endl;
 			assert(a[w]-(w-e)==a[e]);
@@ -803,44 +845,154 @@ void check(T q,T e){
 	reverse(s.begin(),s.end());
 	assert(a==s);
 }
-
-
+*/
+void ch(LinkedList<int> & a, vector<int> & b) {
+    for(int i = 0; i < a.size(); i++) {
+        //cout << a.begin()[i] << " " << b[i] << endl; 
+        assert(a.begin()[i] == b[i]);
+    }
+    assert(*(a.begin()) == *(b.begin()));
+    assert(*(--a.end()) == *(--b.end()));
+    assert(*(a.rbegin()) == *(b.rbegin()));
+    assert(*(--a.rend()) == *(--b.rend()));
+    assert(*(a.rbegin()) == *(a.end()-1));
+    assert(*(a.rend()) == *(a.begin()-1));
+    sort(a.begin(), a.end());
+    sort(b.begin(), b.end());
+    for(int i = 0; i < a.size(); i++) {
+        //cout << a.begin()[i] << " " << b[i] << endl; 
+        assert(a.begin()[i] == b[i]);
+    }
+    sort(a.rbegin(), a.rend());
+    sort(b.rbegin(), b.rend());
+    for(int i = 0; i < a.size(); i++) {
+        cout << a.begin()[i] << " " << b[i] << endl; 
+        //assert(a.begin()[i] == b[i]);
+    }
+}
 
 
 int main() {
-    LinkedList<int> mylist;
+    LinkedList<int> a;
+    //a.assign(3,3);
+    // a.push_back(5);
+    // a.push_front(4);
+    // //a.pop_front();
+    //a.pop_back();
+    //sort(a.begin(), a.end());
+    // a.insert(a.end(),3, 1);
+    // a.erase(a.end()-1);
+    // a.resize(a.size()-1);
+    // a.resize(a.size()+1);
+    // a.Print();
+    a.push_back(1);
+    a.push_back(4);
+    a.push_back(6);
+    a.push_back(63);
+    a.push_back(5);
+    a.push_back(7);
+    a.push_back(8);
+    a.push_back(4);
+    a.push_back(6);
+    a.push_front(10);
 
+    //cout << "\n_________________________________________\n";
+    //sort(a.rbegin(), a.rend());
+    a.Print();
     cout << "\n_________________________________________\n";
-    mylist.push_back(4);
+    a.reverse();
+    a.Print();
+    cout << "\n_________________________________________\n";
+    // ___mergesort(a.rbegin(),a.rend());
+    // assert(0);
+
+
+    // for (auto w=a.rbegin();w!=a.rend();++w){
+    //     ic(w-a.rbegin(),a.rend()-w)
+    // }
+
+
+    // auto q=a.begin();
+    // for (size_t w=0;w<8;++w){
+    //     ++q;
+    // }
+    // assert(q-8==a.begin());
+
+    // assert(a.rbegin()+8+(-8)==a.rbegin());
+
+
+    // auto q=a.begin();
+    // auto w=q;
+    // ++w;
+    // assert(q<w);
+
+    a.Print();
+    cout << "\n______________________________________________\n";
+    LinkedList<int> b;
+    b.push_back(5);
+    //a.swap(b);
+    //b = a;
+    a.reverse();
+    a.Print();
+    //ch(a,b);
+    //cout << *(--b.end()) << " " << *(b.rbegin()) << endl;
+    //cout << *(b.begin()) << " " << *(--b.rend()) << endl;
+/*
+    cout << endl;
+    sort(b.rbegin(), b.rend());
+    for(int i = 0; i < b.size(); i++) {
+        cout << b[i] << " ";
+    }
+    cout << endl;
+*/
+    //cout << *(--a.end()) << " " << *(a.rbegin()) << endl;
+    //cout << *(a.begin()) << " " << *(--a.rend()) << endl;
+
+
+    //LinkedList<int> b(a);
+    //b.Print();
+    //cout << "\n_________________________________________\n";
+    //mylist.push_back(4);
     //check(mylist.begin(),mylist.end());
     //mylist.Print();
     //cout << "\n_________________________________________\n";
-    mylist.push_front(3);
+    //mylist.push_front(3);
     
     //LinkedList<int> secondlist;
     //mylist.Print();
     //cout << *(++mylist.begin());
-    mylist.insert(mylist.end()-1, 1);
+    //mylist.insert(mylist.end()-1, 1);
     
     //cout << "--edn: " << *(--mylist.end()) << endl;
-    mylist.insert(mylist.end()-1, 2, 5);
-    mylist.insert(mylist.begin(), 2, 7);
+    //mylist.insert(mylist.end()-1, 2, 5);
+    //mylist.insert(mylist.begin(), 2, 7);
 
-    mylist.Print();
+    //mylist.Print();
 
-    //reverse(mylist.rbegin(), mylist.rend());
-    check(mylist.rbegin(), mylist.rend());
+    // ic(mylist.rbegin())
+    //sort(mylist.rbegin(), mylist.rend());
+
+
+    // check(mylist.begin(), mylist.end());
     //check(mylist.begin(), mylist.end());
     //cout << "--edn: " << *(--mylist.end()) << endl;
     //mylist.Print();
-    cout << "\n_________________________________________\n";
+    //cout << "\n_________________________________________\n";
     //cout << "find: " << *(find(mylist.begin(), mylist.end(), 1)) << endl;
     //cout << *mylist.begin();
     //cout << *mylist.end();
     //cout << mylist.end() - mylist.begin() << " : " << mylist.size() << endl;
     //if(mylist.end() == mylist.end()) cout << "yes";
     //sort(mylist.begin(), mylist.end());
-    mylist.Print();
+    //mylist.Print();
+    //cout << "\n_________________________________________\n";
+    //mylist.reverse();
+
+    //mylist.resize(4);
+    //mylist.Print();
+    //cout << "\n_________________________________________\n";
+    //mylist.resize(6);
+    //mylist.Print();
     //cout << "\n_________________________________________\n";
     //sort(++mylist.rbegin(), mylist.rend());
     //mylist.Print();

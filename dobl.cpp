@@ -1,8 +1,8 @@
 #include <iostream>
 #include <iterator>
 
-#define private public
-#define class struct
+//#define private public
+//#define class struct
 
 using namespace std;
 
@@ -100,7 +100,7 @@ template<typename T>
 class LinkedList<T>::Iterator {
 public:
     typedef typename LinkedList<T>::ListNode* node;
-private:
+
     friend struct std::iterator_traits<T>;
 
     node cur;
@@ -371,7 +371,8 @@ void LinkedList<T>::push_front(const T & n) {
 
 template<typename T>
 void LinkedList<T>::swap(LinkedList & other) {
-    LinkedList<T> a = other;
+    LinkedList<T> a;
+    a.copy(other);
     other = *this;
     *this  = a;
 }
@@ -467,10 +468,10 @@ void LinkedList<T>::resize(size_type n) {
 template<typename T>
 void LinkedList<T>::reverse() {
     if(!count) return;
-    typename LinkedList<T>::Iterator q=begin();
-    typename LinkedList<T>::Iterator w=end()-1;
-    while (q!=w){
-        T t=*q;
+    auto q=begin();
+    auto w=end()-1;
+    while ((q!=w) && (q+1!=w)){
+        auto t=*q;
         *q=*w;
         *w=t;
         ++q;
@@ -501,7 +502,12 @@ int main() {
     cout << "\n______________________________________________\n";
     
     a.insert(find(a.begin(), a.end(), 7),16);
-    cout << a;
+    cout << a << endl;
 
+    LinkedList<int> b;
+    b.push_back(5);
+    a.swap(b);
+    cout << a << endl;
+    cout << b;
     return 0;
 }

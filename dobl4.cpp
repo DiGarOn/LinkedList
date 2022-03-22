@@ -4,12 +4,9 @@
 //#include <bits/stdc++.h>
 //#include "test.cpp"
 
-#define private public
-#define class struct
-
 using namespace std;
 
-#define A cout << "here" << endl;
+//#define A cout << "here" << endl;
 
 template<typename T>
 class LinkedList {
@@ -84,13 +81,12 @@ public:
 
 template<typename T>
 class LinkedList<T>::ListNode {
-    friend class LinkedList;
-    friend class ListIterator;
-
     T value;
     ListNode * next;
     ListNode * prev;
 public:
+    friend class LinkedList;
+    friend class ListIterator;
     ListNode();//
     ListNode(const T&);//
     ListNode(const ListNode *); //
@@ -529,7 +525,8 @@ typename LinkedList<T>::const_reference LinkedList<T>::back() const {
 
 template<typename T>
 void LinkedList<T>::swap(LinkedList & other) {
-    LinkedList<T> a = other;
+    LinkedList<T> a;
+    a.copy(other);
     other = *this;
     *this  = a;
 }
@@ -547,7 +544,6 @@ typename LinkedList<T>::ListIterator LinkedList<T>::end() {
 template <typename value_type>
 typename LinkedList<value_type>::_iterator LinkedList<value_type>::insert(LinkedList<value_type>::_iterator It, const value_type & val) {
     It.check();
-    assert(this->begin().IsBegin());
     ListNode * cur = It.node;
     if(cur == head) {
         push_front(val);
@@ -571,7 +567,6 @@ typename LinkedList<value_type>::_iterator LinkedList<value_type>::insert(Linked
 template<typename value_type>
 void LinkedList<value_type>::insert(LinkedList<value_type>::_iterator It, size_type n, const value_type & val) {
     It.check();
-    assert(this->begin().IsBegin());
     ListNode * cur = It.node;
     if(cur == head) {
         for(size_type i = 0; i < n; i++) {
@@ -605,7 +600,6 @@ void LinkedList<value_type>::insert(LinkedList<value_type>::_iterator It, size_t
 template<typename T>
 typename LinkedList<T>::_iterator LinkedList<T>::erase(LinkedList<T>::_iterator It) {
     It.check();
-    assert(this->begin().IsBegin());
     ListNode * cur = It.node;
     assert(cur != tail->next);
     while(_iterator(cur) != It) { cur = cur->next; }
@@ -632,9 +626,10 @@ void LinkedList<T>::Print() {
     if(!count) return;
     while(b != end()) {
         b.check();
-        cout << *b << endl;
+        cout << *b << " ";
         ++b;
     }
+    cout << endl;
 }
 
 template<typename T>
@@ -679,7 +674,7 @@ void LinkedList<T>::reverse() {
     if(!count) return;
     auto q=begin();
     auto w=end()-1;
-    while (q!=w){
+    while ((q!=w) && (q+1!=w)){
         auto t=*q;
         *q=*w;
         *w=t;
@@ -713,17 +708,7 @@ void ch(LinkedList<int> & a, vector<int> & b) {
 
 int main() {
     LinkedList<int> a;
-    //a.assign(3,3);
-    // a.push_back(5);
-    // a.push_front(4);
-    // //a.pop_front();
-    //a.pop_back();
-    //sort(a.begin(), a.end());
-    // a.insert(a.end(),3, 1);
-    // a.erase(a.end()-1);
-    // a.resize(a.size()-1);
-    // a.resize(a.size()+1);
-    // a.Print();
+    
     a.push_back(1);
     a.push_back(4);
     a.push_back(6);
@@ -733,105 +718,96 @@ int main() {
     a.push_back(8);
     a.push_back(4);
     a.push_back(6);
-    //cout << "\n_________________________________________\n";
-    //sort(a.rbegin(), a.rend());
-    cout << a.begin()[0];
-    //a.Print();
-    cout << "\n_________________________________________\n";
+    a.push_back(7);
+    cout << "constructor + push_back + push_front" << endl;
+    a.Print();
+    cout << "___________________________________________\n";
     
-    sort(a.rbegin(), a.rend());
-    //___mergesort(a.rbegin(),a.rend());
-    // assert(0);
+    LinkedList<int> b; 
+    b = a;
+    cout << "operator =" << endl;
+    b.Print();    
+    cout << "___________________________________________\n";
 
+    cout << "begin, end-1, rbegin, rend-1" << endl;
+    cout << *a.begin() << ", " << *(a.end()-1) << ", " << *a.rbegin() << ", " << *(a.rend()-1) << endl;
+    cout << "___________________________________________\n";
+    
+    cout << "empty, size\n";
+    cout << a.empty() << ", " << a.size() << endl;
+    cout << "___________________________________________\n";
 
-    // for (auto w=a.rbegin();w!=a.rend();++w){
-    //     ic(w-a.rbegin(),a.rend()-w)
-    // }
+    cout << "front, back\n";
+    cout << a.front() << ", " << a.back() << endl;
+    cout << "___________________________________________\n";
 
+    cout << "clear, empty, size\n";
+    b.clear();
+    b.Print();
+    cout << b.empty() << ", " << b.size() << endl;
+    cout << "___________________________________________\n";
 
-    // auto q=a.begin();
-    // for (size_t w=0;w<8;++w){
-    //     ++q;
-    // }
-    // assert(q-8==a.begin());
+    cout << "assign\n";
+    b.assign(6, 6);
+    b.Print();
+    cout << "___________________________________________\n";
 
-    // assert(a.rbegin()+8+(-8)==a.rbegin());
+    cout << "push_back, pop_back, push_front, pop_front\n";
+    b.push_back(1);
+    b.Print();
+    b.pop_back();
+    b.Print();
+    b.push_front(1);
+    b.Print();
+    b.pop_front();
+    b.Print();
+    cout << "___________________________________________\n";
 
+    cout << "insert[0], insert[i], insert[n]\n";
+    b.insert(b.begin(),1);
+    b.Print();
+    b.insert(b.begin()+2, 1);
+    b.Print();
+    b.insert(b.end(), 1);
+    b.Print();
+    cout << "___________________________________________\n";
 
-    // auto q=a.begin();
-    // auto w=q;
-    // ++w;
-    // assert(q<w);
+    cout << "erase[0], erase[i], erase[n]\n";
+    b.erase(b.begin());
+    b.Print();
+    b.erase(b.begin()+1);
+    b.Print();
+    b.erase(b.end()-1);
+    b.Print();
+    cout << "___________________________________________\n";
 
+    cout << "swap\n";
+    a.swap(b);
     a.Print();
-    cout << "\n______________________________________________\n";
-    LinkedList<int> b;
-    b.push_back(5);
-    //a.swap(b);
-    //b = a;
-    a.reverse();
+    b.Print();
+    cout << "___________________________________________\n";
+
+    cout << "resize\n";
+    a.resize(6);
     a.Print();
-    //ch(a,b);
-    //cout << *(--b.end()) << " " << *(b.rbegin()) << endl;
-    //cout << *(b.begin()) << " " << *(--b.rend()) << endl;
-/*
-    cout << endl;
+    a.resize(10);
+    a.Print();
+    cout << "___________________________________________\n";
+
+    cout << "reverse\n";
+    b.Print();
+    b.reverse();
+    b.Print();
+    cout << "___________________________________________\n";
+
+    cout << "sort(begin, end), sort(rbegin, rend)\n";
+    sort(b.begin(), b.end());
+    b.Print();
     sort(b.rbegin(), b.rend());
-    for(int i = 0; i < b.size(); i++) {
-        cout << b[i] << " ";
-    }
-    cout << endl;
-*/
-    //cout << *(--a.end()) << " " << *(a.rbegin()) << endl;
-    //cout << *(a.begin()) << " " << *(--a.rend()) << endl;
+    b.Print();
+    cout << "___________________________________________\n";
 
-
-    //LinkedList<int> b(a);
-    //b.Print();
-    //cout << "\n_________________________________________\n";
-    //mylist.push_back(4);
-    //check(mylist.begin(),mylist.end());
-    //mylist.Print();
-    //cout << "\n_________________________________________\n";
-    //mylist.push_front(3);
     
-    //LinkedList<int> secondlist;
-    //mylist.Print();
-    //cout << *(++mylist.begin());
-    //mylist.insert(mylist.end()-1, 1);
-    
-    //cout << "--edn: " << *(--mylist.end()) << endl;
-    //mylist.insert(mylist.end()-1, 2, 5);
-    //mylist.insert(mylist.begin(), 2, 7);
 
-    //mylist.Print();
-
-    // ic(mylist.rbegin())
-    //sort(mylist.rbegin(), mylist.rend());
-
-
-    // check(mylist.begin(), mylist.end());
-    //check(mylist.begin(), mylist.end());
-    //cout << "--edn: " << *(--mylist.end()) << endl;
-    //mylist.Print();
-    //cout << "\n_________________________________________\n";
-    //cout << "find: " << *(find(mylist.begin(), mylist.end(), 1)) << endl;
-    //cout << *mylist.begin();
-    //cout << *mylist.end();
-    //cout << mylist.end() - mylist.begin() << " : " << mylist.size() << endl;
-    //if(mylist.end() == mylist.end()) cout << "yes";
-    //sort(mylist.begin(), mylist.end());
-    //mylist.Print();
-    //cout << "\n_________________________________________\n";
-    //mylist.reverse();
-
-    //mylist.resize(4);
-    //mylist.Print();
-    //cout << "\n_________________________________________\n";
-    //mylist.resize(6);
-    //mylist.Print();
-    //cout << "\n_________________________________________\n";
-    //sort(++mylist.rbegin(), mylist.rend());
-    //mylist.Print();
     return 0;
 }
